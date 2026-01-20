@@ -1,9 +1,107 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" prefix="og: https://ogp.me/ns#">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Secure Client-Side Image Compression</title>
+
+    <title>PhotoDiet | Free Secure Client-Side Image Compressor</title>
+    <meta
+      name="title"
+      content="PhotoDiet | Free Secure Client-Side Image Compressor"
+    />
+    <meta
+      name="description"
+      content="Compress JPG, PNG, and WebP images instantly in your browser. 100% privacy-focused, no server uploads, and completely free. Reduce file size without losing quality."
+    />
+    <meta
+      name="keywords"
+      content="photo compressor, image optimizer, compress jpeg, reduce image size, client-side compression, private image compressor, convert to webp"
+    />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="PhotoDiet" />
+    <link rel="canonical" href="https://photodiet.netlify.app/" />
+
+    <link rel="icon" href="public/icon/Icon_white.png" type="image/png" />
+    <link rel="apple-touch-icon" href="public/icon/Icon_white.png" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://photodiet.netlify.app/" />
+    <meta property="og:title" content="PhotoDiet | Secure Image Compressor" />
+    <meta
+      property="og:description"
+      content="No uploads. No servers. The fastest way to reduce image file size while keeping your data 100% private."
+    />
+    <meta
+      property="og:image"
+      content="https://photodiet.netlify.app/public/icon/IconText_white.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://photodiet.netlify.app/" />
+    <meta name="twitter:title" content="PhotoDiet | Secure Image Compressor" />
+    <meta
+      name="twitter:description"
+      content="Compress images locally. 100% Client-side. No server uploads."
+    />
+    <meta
+      name="twitter:image"
+      content="https://photodiet.netlify.app/public/icon/IconText_white.png"
+    />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "PhotoDiet",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Web Browser",
+        "url": "https://photodiet.netlify.app/",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "A browser-based image compression tool that reduces file size for JPG and WebP formats without server-side processing.",
+        "featureList": "Client-side compression, No server uploads, WebP conversion, Drag and drop interface",
+        "screenshot": "https://photodiet.netlify.app/public/icon/IconText_white.png"
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is PhotoDiet safe to use?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, absolutely. PhotoDiet runs 100% in your web browser. Your images are never uploaded to any server, ensuring complete privacy."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does this tool reduce image quality?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "PhotoDiet uses smart compression algorithms to reduce file size significantly while maintaining excellent visual quality for web use."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is PhotoDiet free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, PhotoDiet is completely free to use with no hidden fees or usage limits."
+            }
+          }
+        ]
+      }
+    </script>
+
     <style>
       /* --- DESIGN TOKENS & RESET --- */
       :root {
@@ -49,16 +147,21 @@
         text-align: center;
         margin-bottom: 3rem;
         max-width: 600px;
+        width: 100%;
       }
-      h1 {
-        font-size: 1.75rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        letter-spacing: -0.02em;
+
+      /* LOGO STYLES */
+      .main-logo {
+        height: 60px;
+        width: auto;
+        display: block;
+        margin: 0 auto 1rem auto;
+        max-width: 100%;
       }
+
       .subtitle {
         color: var(--text-secondary);
-        font-size: 0.95rem;
+        font-size: 1rem;
       }
       .tagline {
         display: inline-block;
@@ -67,8 +170,10 @@
         padding: 4px 12px;
         border-radius: 20px;
         font-size: 0.75rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
       }
 
       /* --- LAYOUT --- */
@@ -76,6 +181,7 @@
         width: 100%;
         max-width: 800px;
         position: relative;
+        z-index: 10;
       }
 
       /* --- UPLOAD ZONE --- */
@@ -376,6 +482,52 @@
         animation: fadeIn 0.5s ease-out;
       }
 
+      /* --- SEO CONTENT SECTION (New) --- */
+      .seo-content {
+        width: 100%;
+        max-width: 800px;
+        margin-top: 5rem;
+        margin-bottom: 3rem;
+        padding: 2rem;
+        background: #fff;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-color);
+      }
+      .seo-content h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+      }
+      .seo-content h3 {
+        font-size: 1.15rem;
+        margin-top: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+      }
+      .seo-content p {
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+      }
+      .seo-content ul {
+        padding-left: 1.25rem;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+      }
+      .seo-content li {
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+      }
+      .faq-item {
+        margin-bottom: 1.5rem;
+      }
+      .faq-question {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+        display: block;
+      }
+
       @keyframes fadeIn {
         from {
           opacity: 0;
@@ -409,17 +561,32 @@
   </head>
   <body>
     <header id="app-header">
-      <div class="tagline">100% client-side image compression</div>
-      <h1>Image Compressor</h1>
-      <p class="subtitle">
-        No uploads. No servers. Instant compression and download.
-      </p>
+      <div class="tagline">100% Client-Side</div>
+      <img
+        src="public/icon/IconText_white.png"
+        alt="PhotoDiet - Free Online Image Compressor"
+        class="main-logo"
+      />
+      <h2
+        style="
+          font-size: 1rem;
+          font-weight: 500;
+          color: var(--text-secondary);
+          margin-top: 0;
+        "
+      >
+        Secure Browser-Based Image Optimizer
+      </h2>
     </header>
 
     <main id="app-main">
-      <section class="upload-zone" id="drop-zone">
+      <section
+        class="upload-zone"
+        id="drop-zone"
+        aria-label="Image Upload Area"
+      >
         <div id="upload-content">
-          <div class="upload-icon">↓</div>
+          <div class="upload-icon" aria-hidden="true">↓</div>
           <h3>Drag & Drop or Click to Upload</h3>
           <p
             style="
@@ -447,10 +614,15 @@
             Remove
           </button>
         </div>
-        <input type="file" id="file-input" accept="image/*" />
+        <input
+          type="file"
+          id="file-input"
+          accept="image/*"
+          aria-label="File Input"
+        />
       </section>
 
-      <section class="controls" id="controls">
+      <section class="controls" id="controls" aria-label="Compression Controls">
         <div>
           <fieldset>
             <legend>Target File Size</legend>
@@ -487,7 +659,11 @@
         </div>
       </section>
 
-      <section class="preview-area" id="preview-area">
+      <section
+        class="preview-area"
+        id="preview-area"
+        aria-label="Image Preview"
+      >
         <div class="loading-overlay" id="loading-overlay">
           <div class="spinner"></div>
           <div class="loading-text">Compressing...</div>
@@ -495,7 +671,7 @@
 
         <div class="preview-card">
           <div class="image-container">
-            <img id="img-original" alt="Original Preview" />
+            <img id="img-original" alt="Original Image Preview" />
           </div>
           <div class="stats">
             <span>Original</span>
@@ -505,7 +681,7 @@
         </div>
         <div class="preview-card">
           <div class="image-container">
-            <img id="img-compressed" alt="Compressed Preview" />
+            <img id="img-compressed" alt="Compressed Image Preview" />
           </div>
           <div class="stats">
             <span>Compressed</span>
@@ -516,7 +692,7 @@
         </div>
       </section>
 
-      <div id="error-msg" class="error-msg"></div>
+      <div id="error-msg" class="error-msg" role="alert"></div>
 
       <section class="action-area" id="action-area">
         <div class="btn-group">
@@ -532,6 +708,53 @@
         </div>
       </section>
     </main>
+
+    <article class="seo-content">
+      <h2>Why use PhotoDiet Image Compressor?</h2>
+      <p>
+        PhotoDiet is the safest way to compress images online. Unlike other
+        tools that upload your photos to a remote server, PhotoDiet runs
+        entirely in your web browser. This means your personal photos,
+        documents, and creative work never leave your device.
+      </p>
+
+      <h3>Key Features</h3>
+      <ul>
+        <li>
+          <strong>100% Client-Side:</strong> No server uploads, guaranteeing
+          total privacy.
+        </li>
+        <li>
+          <strong>Auto-Cleaning:</strong> App memory clears automatically after
+          30 seconds.
+        </li>
+        <li>
+          <strong>Smart Compression:</strong> Reduce JPG and WebP file sizes by
+          up to 80% without visible quality loss.
+        </li>
+        <li>
+          <strong>Fast & Free:</strong> No signup required, instant processing.
+        </li>
+      </ul>
+
+      <h3>Frequently Asked Questions</h3>
+      <div class="faq-item">
+        <span class="faq-question"
+          >Is it safe to compress private photos here?</span
+        >
+        <p>
+          Yes. Since no file is ever uploaded to a cloud server, your data
+          remains strictly on your computer or phone.
+        </p>
+      </div>
+      <div class="faq-item">
+        <span class="faq-question">What formats are supported?</span>
+        <p>
+          You can upload any image browser-supported image (JPG, PNG, WebP) and
+          convert/compress them into optimized JPG or WebP formats.
+        </p>
+      </div>
+    </article>
 
     <div class="timer-bar" id="timer-bar"></div>
 
@@ -758,7 +981,7 @@
         if (!state.compressedBlob) return;
 
         const ext = state.format === "image/jpeg" ? "jpg" : "webp";
-        const filename = `compressed-${state.targetSizeMB}MB.${ext}`;
+        const filename = `photodiet-compressed-${state.targetSizeMB}MB.${ext}`;
 
         const a = document.createElement("a");
         a.href = els.imgComp.src;
@@ -774,8 +997,7 @@
       const disableInterface = () => {
         els.btnDownload.disabled = true;
         els.btnDownload.textContent = "Downloaded";
-        // FIXED: Do NOT hide the reset button here.
-        // els.btnReset.style.display = 'none';
+        // Do NOT hide the reset button here.
 
         els.fileInput.disabled = true;
         els.resetUpload.style.display = "none";
@@ -819,6 +1041,7 @@
         document.body.innerHTML = `
                 <main style="display:flex; justify-content:center; align-items:center; height:100vh; flex-direction:column;">
                     <div class="session-cleared">
+                        <img src="public/icon/IconText_white.png" alt="PhotoDiet" style="height:50px; margin-bottom:1rem; opacity:0.8;">
                         <h2 style="margin-bottom:1rem; font-size:1.5rem;">Session cleared for privacy.</h2>
                         <p style="color:var(--text-secondary);">Your images have been removed from browser memory.</p>
                         <button onclick="location.reload()" style="margin-top:2rem; padding:0.75rem 1.5rem; background:var(--text-primary); color:white; border:none; border-radius:8px; cursor:pointer;">Start New Session</button>
@@ -828,7 +1051,7 @@
       };
 
       const resetUI = (fullReset = true) => {
-        // FIXED: Cancel pending destruction timer if user clicks Process Another
+        // Cancel pending destruction timer if user clicks Process Another
         if (state.timerId) clearTimeout(state.timerId);
         els.timerBar.style.transition = "none";
         els.timerBar.style.width = "0%";
