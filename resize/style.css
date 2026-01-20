@@ -1,0 +1,116 @@
+/* --- VARIABLES & RESET --- */
+:root {
+    --bg-color: #f7f9fc;
+    --surface-color: #ffffff;
+    --text-primary: #1a1a1a;
+    --text-secondary: #5e6c84;
+    --accent-color: #2563eb;
+    --border-color: #e2e8f0;
+    --danger-color: #ef4444;
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.04);
+    --radius-lg: 16px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+    line-height: 1.5;
+}
+
+.hidden { display: none !important; }
+
+/* --- HEADER --- */
+header { text-align: center; margin-bottom: 3rem; width: 100%; max-width: 800px; position: relative; }
+.back-link { position: absolute; left: 0; top: 1rem; text-decoration: none; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; }
+.back-link:hover { color: var(--accent-color); }
+.main-logo { height: 60px; width: auto; margin-bottom: 0.5rem; display: inline-block; }
+.tool-name { font-size: 1.25rem; font-weight: 700; color: var(--accent-color); margin-bottom: 0.5rem; }
+.subtitle { color: var(--text-secondary); }
+
+/* --- MAIN LAYOUT --- */
+main { width: 100%; max-width: 800px; }
+
+/* --- UPLOAD ZONE --- */
+.upload-zone {
+    width: 100%; background: var(--surface-color);
+    border: 2px dashed var(--border-color); border-radius: var(--radius-lg);
+    padding: 4rem 2rem; text-align: center; cursor: pointer;
+    transition: all 0.2s; margin-bottom: 2rem;
+}
+.upload-zone:hover { border-color: var(--accent-color); transform: scale(1.01); }
+.upload-zone.collapsed { padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-style: solid; transform: none; }
+.upload-icon { font-size: 2rem; color: var(--text-secondary); margin-bottom: 1rem; }
+#file-input { display: none; }
+#file-name { font-weight: 600; }
+.btn-text-danger { background: none; border: none; color: var(--danger-color); cursor: pointer; margin-left: 1rem; font-weight: 500; }
+
+/* --- CONTROLS SPECIFIC TO RESIZER --- */
+.controls {
+    background: var(--surface-color); padding: 2rem;
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-soft);
+    margin-bottom: 2rem; animation: fadeIn 0.3s ease-out;
+}
+
+.control-group { margin-bottom: 1.5rem; }
+.control-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.9rem; }
+select {
+    width: 100%; padding: 0.75rem; border: 1px solid var(--border-color);
+    border-radius: 8px; font-size: 1rem; background: #fff;
+}
+
+/* GRID FOR INPUTS AND LOCK */
+.dimensions-grid {
+    display: flex; align-items: flex-end; gap: 1rem;
+}
+
+.input-wrapper { flex: 1; }
+.input-wrapper label { display: block; font-size: 0.8rem; margin-bottom: 0.4rem; color: var(--text-secondary); }
+.input-wrapper input {
+    width: 100%; padding: 0.75rem; border: 1px solid var(--border-color);
+    border-radius: 8px; font-size: 1.1rem; text-align: center; font-weight: 600;
+}
+
+.lock-wrapper { padding-bottom: 0.5rem; }
+.btn-lock {
+    background: none; border: 1px solid var(--border-color);
+    border-radius: 8px; width: 40px; height: 40px; font-size: 1.2rem;
+    cursor: pointer; opacity: 0.4; transition: all 0.2s;
+}
+.btn-lock.active { opacity: 1; background: #f0f9ff; border-color: var(--accent-color); }
+
+/* --- ACTION AREA --- */
+.action-area { text-align: center; margin-top: 2rem; }
+.btn-download {
+    background: var(--text-primary); color: white; border: none;
+    padding: 1rem 2.5rem; border-radius: 12px; font-size: 1rem; font-weight: 600;
+    cursor: pointer; box-shadow: var(--shadow-soft); transition: transform 0.2s;
+}
+.btn-download:hover { transform: translateY(-2px); }
+
+/* --- SEO & FOOTER --- */
+.seo-content {
+    background: #fff; padding: 2rem; border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color); margin-top: 4rem; margin-bottom: 3rem;
+}
+.seo-content h2 { margin-bottom: 1rem; font-size: 1.5rem; }
+.seo-content h3 { margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 1.15rem; }
+.seo-content p { color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.6; }
+.seo-content ul { padding-left: 1.25rem; color: var(--text-secondary); margin-bottom: 1rem; }
+.faq-item { margin-bottom: 1.5rem; }
+.faq-question { font-weight: 600; display: block; margin-bottom: 0.25rem; }
+
+footer { margin-top: auto; padding-top: 3rem; text-align: center; font-size: 0.85rem; color: var(--text-secondary); }
+.dev-credit a { color: inherit; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 600px) {
+    .back-link { position: static; display: block; margin-bottom: 1.5rem; }
+}

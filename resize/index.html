@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>SizeDiet | Free Image Resizer for Social Media</title>
+    <meta
+      name="description"
+      content="Resize images for Instagram, YouTube, Twitter, and more. Free online image resizer with custom dimensions and social media presets."
+    />
+    <meta
+      name="keywords"
+      content="image resizer, resize photo for instagram, youtube thumbnail resizer, change image dimensions, pixel resizer"
+    />
+    <link rel="canonical" href="https://photodiet.netlify.app/resize/" />
+
+    <link rel="icon" href="../public/icon/Icon_white.png" type="image/png" />
+
+    <link rel="stylesheet" href="style.css" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "SizeDiet",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Web Browser",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "description": "Browser-based image resizer with presets for social media platforms.",
+        "featureList": "Social media presets, Custom dimensions, Aspect ratio lock",
+        "screenshot": "https://photodiet.netlify.app/public/icon/IconText_white.png"
+      }
+    </script>
+  </head>
+  <body>
+    <header>
+      <a href="/" class="back-link">← Back to Tools</a>
+      <img
+        src="../public/icon/IconText_white.png"
+        alt="PhotoDiet"
+        class="main-logo"
+      />
+      <div class="tool-name">SizeDiet (Resizer)</div>
+      <p class="subtitle">
+        Resize dimensions for social media or custom pixels.
+      </p>
+    </header>
+
+    <main>
+      <section class="upload-zone" id="drop-zone">
+        <div id="upload-content">
+          <div class="upload-icon">📐</div>
+          <h3>Drag & Drop to Resize</h3>
+          <p class="upload-hint">Supports JPG, PNG, WebP</p>
+        </div>
+        <div id="file-info" class="hidden">
+          <span id="file-name"></span>
+          <button id="btn-remove" class="btn-text-danger">Remove</button>
+        </div>
+        <input type="file" id="file-input" accept="image/*" />
+      </section>
+
+      <section class="controls hidden" id="controls">
+        <div class="control-group">
+          <label>Choose a Preset:</label>
+          <select id="preset-select">
+            <option value="custom">Custom Dimensions</option>
+            <optgroup label="Instagram">
+              <option value="1080x1080">Instagram Square (1080x1080)</option>
+              <option value="1080x1350">Instagram Portrait (1080x1350)</option>
+              <option value="1080x1920">Instagram Story (1080x1920)</option>
+            </optgroup>
+            <optgroup label="YouTube">
+              <option value="1280x720">Thumbnail (1280x720)</option>
+              <option value="2560x1440">Channel Art (2560x1440)</option>
+            </optgroup>
+            <optgroup label="Twitter / X">
+              <option value="1500x500">Header (1500x500)</option>
+              <option value="1600x900">Post (1600x900)</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="dimensions-grid">
+          <div class="input-wrapper">
+            <label>Width (px)</label>
+            <input type="number" id="input-width" placeholder="Width" />
+          </div>
+
+          <div class="lock-wrapper">
+            <button
+              id="btn-lock"
+              class="btn-lock active"
+              title="Lock Aspect Ratio"
+            >
+              🔒
+            </button>
+          </div>
+
+          <div class="input-wrapper">
+            <label>Height (px)</label>
+            <input type="number" id="input-height" placeholder="Height" />
+          </div>
+        </div>
+      </section>
+
+      <div class="action-area hidden" id="action-area">
+        <button class="btn-download" id="btn-resize">Resize & Download</button>
+        <p id="status-msg"></p>
+      </div>
+    </main>
+
+    <article class="seo-content">
+      <h2>Why use SizeDiet Image Resizer?</h2>
+      <p>
+        SizeDiet helps you fit your photos perfectly onto any platform. Whether
+        you need a crisp <strong>Instagram Story</strong> or a pixel-perfect
+        <strong>YouTube Thumbnail</strong>, SizeDiet resizes your images
+        instantly in the browser without uploading them to a server.
+      </p>
+
+      <h3>Social Media Size Cheat Sheet (2025)</h3>
+      <ul>
+        <li><strong>Instagram Square:</strong> 1080 x 1080 px</li>
+        <li><strong>Instagram Portrait:</strong> 1080 x 1350 px</li>
+        <li><strong>YouTube Thumbnail:</strong> 1280 x 720 px</li>
+        <li><strong>Twitter Header:</strong> 1500 x 500 px</li>
+      </ul>
+
+      <h3>Frequently Asked Questions</h3>
+      <div class="faq-item">
+        <span class="faq-question">Does resizing reduce quality?</span>
+        <p>
+          Making an image smaller (downscaling) usually keeps it sharp. Making
+          it larger (upscaling) may cause blurriness, but SizeDiet uses smart
+          smoothing to help.
+        </p>
+      </div>
+      <div class="faq-item">
+        <span class="faq-question">How does "Lock Aspect Ratio" work?</span>
+        <p>
+          When the lock is on (🔒), changing the width automatically adjusts the
+          height to keep your image from looking squished or stretched.
+        </p>
+      </div>
+    </article>
+
+    <footer>
+      <p>&copy; 2025 PhotoDiet. 100% Client-Side & Secure.</p>
+      <p class="dev-credit">
+        Built by
+        <a href="https://shreejamanandhar.com.np" target="_blank" rel="noopener"
+          >Shreeja Manandhar</a
+        >
+      </p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

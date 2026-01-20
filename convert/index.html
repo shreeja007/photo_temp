@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>FormatDiet | Free Image Converter (WebP, JPG, PNG)</title>
+    <meta
+      name="description"
+      content="Convert WebP to JPG, HEIC to PNG, or JPG to WebP instantly. Free, secure, client-side image converter. No server uploads."
+    />
+    <meta
+      name="keywords"
+      content="image converter, webp to jpg, png to webp, heic converter, client-side image converter, free photo converter"
+    />
+    <link rel="canonical" href="https://photodiet.netlify.app/convert/" />
+
+    <link rel="icon" href="../public/icon/Icon_white.png" type="image/png" />
+
+    <link rel="stylesheet" href="style.css" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "FormatDiet",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "A secure browser-based image converter tool that shifts formats between JPG, PNG, and WebP without server uploads.",
+        "featureList": "Client-side conversion, WebP to JPG, Transparency handling, Batch processing capable",
+        "screenshot": "https://photodiet.netlify.app/public/icon/IconText_white.png"
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I convert WebP to JPG for free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Simply upload your WebP image to FormatDiet, select 'JPG' as the target format, and click Convert. The process happens instantly in your browser."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is it safe to convert private documents?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. FormatDiet runs entirely on your device. Your images are never uploaded to any server, making it 100% secure for sensitive documents."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I convert transparent PNGs to JPG?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. FormatDiet automatically handles transparency by adding a white background when converting PNGs to JPG, ensuring your image looks correct."
+            }
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <header>
+      <a href="/" class="back-link">← Back to Tools</a>
+      <img
+        src="../public/icon/IconText_white.png"
+        alt="PhotoDiet"
+        class="main-logo"
+      />
+      <div class="tool-name">FormatDiet (Converter)</div>
+      <p class="subtitle">Convert any image extension to JPG, PNG, or WebP.</p>
+    </header>
+
+    <main>
+      <section class="upload-zone" id="drop-zone">
+        <div id="upload-content">
+          <div class="upload-icon">🔄</div>
+          <h3>Drag & Drop to Convert</h3>
+          <p class="upload-hint">
+            Supports WebP, HEIC, PNG, JPG, AVIF, and more
+          </p>
+        </div>
+        <div id="file-info" class="hidden">
+          <span id="file-name"></span>
+          <button id="btn-remove" class="btn-text-danger">Remove</button>
+        </div>
+        <input type="file" id="file-input" accept="image/*" />
+      </section>
+
+      <section class="controls hidden" id="controls">
+        <h3>Convert file to:</h3>
+        <div class="format-grid">
+          <label class="radio-btn">
+            <input type="radio" name="format" value="image/jpeg" checked />
+            <span class="radio-label">JPG</span>
+          </label>
+          <label class="radio-btn">
+            <input type="radio" name="format" value="image/png" />
+            <span class="radio-label">PNG</span>
+          </label>
+          <label class="radio-btn">
+            <input type="radio" name="format" value="image/webp" />
+            <span class="radio-label">WebP</span>
+          </label>
+        </div>
+      </section>
+
+      <div class="action-area hidden" id="action-area">
+        <button class="btn-download" id="btn-convert">
+          Convert & Download
+        </button>
+        <p id="status-msg"></p>
+      </div>
+    </main>
+
+    <article class="seo-content">
+      <h2>Why use FormatDiet Image Converter?</h2>
+      <p>
+        FormatDiet solves the common frustration of incompatible image files.
+        Whether you downloaded a <strong>WebP</strong> file that won't open in
+        Photoshop, or you need to convert a heavy <strong>PNG</strong> to a
+        web-friendly format, FormatDiet handles it instantly in your browser.
+      </p>
+
+      <h3>Key Features</h3>
+      <ul>
+        <li>
+          <strong>Universal Converter:</strong> Easily shift between JPG, PNG,
+          and WebP formats.
+        </li>
+        <li>
+          <strong>Privacy First:</strong> No server uploads. Your personal
+          photos stay on your device.
+        </li>
+        <li>
+          <strong>Smart Transparency:</strong> Automatically handles transparent
+          backgrounds when converting to JPG.
+        </li>
+        <li>
+          <strong>Unlimited:</strong> Convert as many images as you need without
+          daily limits.
+        </li>
+      </ul>
+
+      <h3>Common Use Cases</h3>
+      <ul>
+        <li>
+          <strong>Fix "WebP" Downloads:</strong> Convert Google's WebP images to
+          standard JPG for easy sharing.
+        </li>
+        <li>
+          <strong>Web Optimization:</strong> Convert PNGs to WebP to make your
+          website load faster.
+        </li>
+        <li>
+          <strong>Compatibility:</strong> Ensure your images work on all devices
+          by converting to the universal JPG format.
+        </li>
+      </ul>
+
+      <h3>Frequently Asked Questions</h3>
+      <div class="faq-item">
+        <span class="faq-question">How do I convert WebP to JPG?</span>
+        <p>
+          Upload your WebP file, select "JPG" from the options above, and click
+          Convert. It takes less than a second.
+        </p>
+      </div>
+      <div class="faq-item">
+        <span class="faq-question">Does converting lose quality?</span>
+        <p>
+          FormatDiet uses high-quality conversion settings (0.95) to ensure your
+          new image looks virtually identical to the original.
+        </p>
+      </div>
+      <div class="faq-item">
+        <span class="faq-question">Is it safe to convert private photos?</span>
+        <p>
+          Absolutely. Unlike other converters that upload your data to the
+          cloud, FormatDiet processes everything locally on your computer.
+        </p>
+      </div>
+    </article>
+
+    <footer>
+      <p>&copy; 2025 PhotoDiet. 100% Client-Side & Secure.</p>
+      <p class="dev-credit">
+        Built by
+        <a href="https://shreejamanandhar.com.np" target="_blank" rel="noopener"
+          >Shreeja Manandhar</a
+        >
+      </p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
