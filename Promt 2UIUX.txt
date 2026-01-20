@@ -1,0 +1,183 @@
+LOVABLE PROMPT — UI Polish & Animations Pass (Frontend Only)
+
+You are a senior UI/UX designer and frontend motion engineer.
+Your task is to polish and enhance the UI and micro-interactions of an existing frontend-only image compression app.
+
+⚠️ Do NOT modify business logic, compression rules, or application flow.
+This is a visual + interaction refinement pass only.
+
+DESIGN GOALS
+
+Feel fast, clean, trustworthy
+
+Communicate privacy and simplicity
+
+Look “premium” without being flashy
+
+Animations must support clarity, not distract
+
+VISUAL STYLE
+
+Minimal, neutral color palette
+
+Soft surfaces, subtle shadows
+
+Clear hierarchy and spacing
+
+Professional, product-grade typography
+
+Avoid skeuomorphism and gimmicks
+
+ANIMATION PRINCIPLES
+
+Use subtle, purposeful motion
+
+Prefer short durations (120–220ms)
+
+Ease: ease-out or cubic-bezier for natural motion
+
+No infinite or looping animations
+
+Motion should reinforce state changes
+
+UI ENHANCEMENTS (REQUIRED)
+Upload Area
+
+Drag & drop zone with:
+
+dashed border
+
+hover highlight
+
+soft scale-up on drag enter
+
+Smooth transition when file is added
+
+Upload area collapses gracefully after image is loaded
+
+Controls Section
+
+Target size buttons:
+
+clear selected state
+
+animated press feedback
+
+Format selector:
+
+toggle-style buttons with smooth state transitions
+
+Disable states visually obvious but not harsh
+
+Compression Feedback
+
+Show a compact progress indicator:
+
+subtle animated bar or spinner
+
+Transition smoothly into result view when done
+
+Avoid blocking UI with full-screen loaders
+
+Comparison Panels
+
+Two panels animate in:
+
+slight fade + upward motion
+
+Image loading uses:
+
+low-opacity placeholder
+
+fade-in when ready
+
+Stats appear with delayed micro-animation (staggered)
+
+Download CTA
+
+Primary button styling:
+
+confident color
+
+hover lift effect
+
+Clear affordance that action is final
+
+Button press animation (scale down slightly)
+
+30-Second Session Countdown
+
+Display countdown subtly (not alarming)
+
+Use:
+
+shrinking progress line
+
+or fading timer text
+
+When session clears:
+
+smooth fade-out of content
+
+brief confirmation message:
+“Session cleared for privacy.”
+
+MICRO-INTERACTIONS
+
+Button hover and press states
+
+Focus states for accessibility
+
+Smooth transitions between sections
+
+No abrupt layout jumps
+
+Clear visual feedback for every user action
+
+RESPONSIVENESS
+
+Desktop-first but fully responsive
+
+On mobile:
+
+Stack comparison panels vertically
+
+Keep controls thumb-friendly
+
+Animations must not feel slow on low-end devices
+
+ACCESSIBILITY
+
+Respect prefers-reduced-motion
+
+Disable non-essential animations when enabled
+
+Maintain sufficient contrast
+
+Keyboard navigation supported
+
+OUT OF SCOPE (DO NOT ADD)
+
+No new features
+
+No backend logic
+
+No analytics
+
+No branding additions
+
+No feature explanations or tutorials
+
+DELIVERABLE
+
+A visually polished, animated UI that:
+
+Feels premium and trustworthy
+
+Clearly communicates privacy and speed
+
+Enhances usability without changing behavior
+
+Looks demo-ready for product showcases
+
+Do not expand scope beyond UI/UX polish and motion refinement.

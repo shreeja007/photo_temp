@@ -1,0 +1,218 @@
+LOVABLE PROMPT — Frontend-Only Image Compressor (v1)
+
+You are a senior frontend engineer and product designer.
+Build a frontend-only image compression web app.
+Do NOT introduce any backend, API, server, database, or upload endpoint.
+All processing MUST happen entirely in the browser.
+
+CORE CONSTRAINTS (NON-NEGOTIABLE)
+
+Client-side only (Canvas / browser APIs)
+
+No server, no network requests, no uploads
+
+No persistence (no localStorage, IndexedDB, cookies)
+
+Single image only (v1)
+
+JPG and WebP output only
+
+Session auto-clears after 30 seconds (UI + memory cleanup)
+
+One-shot flow: upload → compress → download → done
+
+FUNCTIONAL REQUIREMENTS
+Image Upload
+
+Accept a single image via:
+
+drag & drop
+
+click to upload
+
+Supported input formats: any browser-decodable image
+
+Show original image preview immediately
+
+Show original stats:
+
+file size
+
+dimensions
+
+format
+
+User Controls (REQUIRED)
+
+Target size selector (mandatory before compress):
+
+1 MB
+
+2 MB
+
+3 MB
+
+No default selection — user must choose
+
+Output format selector:
+
+JPG
+
+WebP
+
+Compress button disabled until both are selected
+
+Compression Rules (STRICT)
+
+Implement deterministic compression with these locked floors:
+
+Minimum quality: 30%
+
+Minimum resolution: 720px on the long edge
+
+Strip metadata (EXIF)
+
+Algorithm:
+
+Decode image
+
+Convert to selected output format
+
+Start with:
+
+JPG quality = 0.85
+
+WebP quality = 0.80
+
+Loop:
+
+Reduce quality stepwise down to 0.30
+
+If still above target size:
+
+Downscale dimensions gradually
+
+Stop scaling once long edge reaches 720px
+
+Stop when:
+
+Output ≤ target size → success
+
+OR quality = 0.30 AND resolution = 720px reached
+
+Failure Handling:
+
+If target size cannot be reached within constraints:
+
+Show a clear message:
+“Cannot reach selected size without further quality loss. Choose a larger size.”
+
+Comparison UI (MANDATORY)
+
+Show two separate panels side by side:
+
+Left: Original image
+
+Right: Compressed image
+
+Display stats under each:
+
+Size
+
+Dimensions
+
+Format
+
+Highlight reduction percentage
+
+No sliders. Two panels only.
+
+Download
+
+Provide a clear “Download compressed image” button
+
+Filename should reflect:
+
+compressed
+
+target size
+
+format
+
+Once downloaded, no further actions are allowed in this session.
+
+Session Cleanup (IMPORTANT)
+
+Start a 30-second countdown after compression
+
+After 30 seconds:
+
+Remove previews
+
+Revoke object URLs
+
+Clear canvas
+
+Reset inputs
+
+Show message:
+“Session cleared for privacy.”
+
+⚠️ Do NOT claim the file is deleted from the user’s device
+Only clear in-app memory and UI state
+
+UI / UX REQUIREMENTS
+
+Clean, minimal, professional UI
+
+Privacy-first tone
+
+No dark patterns
+
+Clear progress indicator during compression
+
+Clear error messages
+
+Mobile-responsive layout
+
+MARKETING COPY (USE THIS LANGUAGE)
+
+“100% client-side image compression”
+
+“No uploads. No servers.”
+
+“Instant compression and download”
+
+“Auto-clears from the app after 30 seconds”
+
+Do NOT say “deleted forever” or “securely deleted”
+
+TECHNICAL NOTES
+
+Use modern browser APIs only
+
+Prefer createImageBitmap + <canvas>
+
+No external services
+
+No analytics
+
+No tracking
+
+No ads
+
+DELIVERABLE
+
+A complete, production-ready frontend application that:
+
+Runs fully in the browser
+
+Compresses images to a user-selected target size
+
+Shows before/after comparison
+
+Downloads instantly
+
+Cleans itself after 30 seconds
+
+Do not add features beyond this scope.
