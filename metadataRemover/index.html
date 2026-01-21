@@ -7,7 +7,7 @@
     <title>DataDiet | Free EXIF & Metadata Remover</title>
     <meta
       name="description"
-      content="Remove hidden GPS location, camera details, and EXIF metadata from photos. Protect your privacy before sharing images online. 100% Client-side."
+      content="Scan and remove hidden GPS location, camera details, and EXIF metadata from photos. Protect your privacy before sharing images online. 100% Client-side."
     />
     <meta
       name="keywords"
@@ -19,6 +19,8 @@
     />
 
     <link rel="icon" href="../public/icon/Icon_white.png" type="image/png" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
 
     <link rel="stylesheet" href="style.css" />
 
@@ -45,88 +47,101 @@
         class="main-logo"
       />
       <div class="tool-name">DataDiet (Metadata Scrub)</div>
-      <p class="subtitle">Remove hidden GPS & device data from your photos.</p>
+      <p class="subtitle">
+        Scan and remove hidden GPS & device data from your photos.
+      </p>
     </header>
 
     <main>
-      <section class="upload-zone" id="drop-zone">
-        <div id="upload-content">
+      <section class="upload-zone" id="upload-zone">
+        <div>
           <div class="upload-icon">🛡️</div>
-          <h3>Drag & Drop to Scrub</h3>
-          <p class="upload-hint">Supports JPG, PNG, WebP</p>
+          <h3>Drag & Drop to Scan</h3>
+          <p class="upload-hint">
+            We'll show you exactly what hidden data is inside
+          </p>
         </div>
         <input type="file" id="file-input" accept="image/*" />
       </section>
 
-      <section class="process-view hidden" id="process-view">
-        <div class="file-card">
-          <img id="preview-thumb" alt="Thumbnail" />
-          <div class="file-details">
-            <span id="file-name" class="fname">image.jpg</span>
-            <span class="status-badge">Ready to Clean</span>
+      <section class="analysis-section hidden" id="analysis-section">
+        <div class="file-header">
+          <img id="file-thumb" class="file-thumb" alt="Preview" />
+          <div class="file-info">
+            <span id="file-name" class="file-name">image.jpg</span>
+            <span id="file-size" class="file-size">2.4 MB</span>
           </div>
-          <button class="btn-text-danger" id="btn-remove">Remove</button>
+          <button class="btn-remove" id="btn-remove">Remove</button>
         </div>
 
-        <div class="data-list">
-          <h3>Select Data to Wipe:</h3>
-          <div class="data-toggles">
-            <div class="toggle-item checked">
-              <span class="check-icon">✓</span>
-              <span class="label">📍 GPS Coordinates</span>
-            </div>
-            <div class="toggle-item checked">
-              <span class="check-icon">✓</span>
-              <span class="label">📷 Camera Settings</span>
-            </div>
-            <div class="toggle-item checked">
-              <span class="check-icon">✓</span>
-              <span class="label">📅 Date & Time</span>
-            </div>
-            <div class="toggle-item checked">
-              <span class="check-icon">✓</span>
-              <span class="label">📝 Copyright Info</span>
-            </div>
-          </div>
-          <p class="security-note">
-            <small
-              >Note: This tool rebuilds your image pixel-by-pixel.
-              <strong>100% of non-visual data will be destroyed.</strong></small
-            >
-          </p>
+        <div id="alert-container"></div>
+
+        <div class="metadata-section" id="metadata-display">
+          <h3>📊 Metadata Found:</h3>
+          <div class="metadata-grid" id="metadata-grid"></div>
         </div>
 
         <div class="action-area">
-          <button class="btn-download" id="btn-process">
-            Scrub Metadata & Download
+          <button class="btn-primary" id="btn-clean">
+            🧹 Strip All Metadata & Download
           </button>
         </div>
       </section>
 
-      <section class="success-view hidden" id="success-view">
-        <div class="success-icon">✨</div>
-        <h2>Image Cleaned!</h2>
-        <p>Your photo is now safe to share.</p>
-        <div class="btn-group">
-          <button class="btn-secondary" id="btn-restart">Clean Another</button>
+      <section class="success-section hidden" id="success-section">
+        <div class="success-icon">✅</div>
+        <h2>Image Cleaned Successfully!</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1rem">
+          Your photo is now safe to share.
+        </p>
+
+        <div class="comparison-grid">
+          <div class="comparison-card">
+            <h4>Before Cleaning</h4>
+            <div class="stat-item">
+              <span class="stat-label">File Size:</span>
+              <span class="stat-value" id="before-size">-</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Hidden Tags:</span>
+              <span class="stat-value" id="before-metadata">-</span>
+            </div>
+          </div>
+          <div class="comparison-card">
+            <h4>After Cleaning</h4>
+            <div class="stat-item">
+              <span class="stat-label">File Size:</span>
+              <span class="stat-value" id="after-size">-</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Hidden Tags:</span>
+              <span class="stat-value" style="color: var(--success-color)"
+                >0</span
+              >
+            </div>
+          </div>
         </div>
+
+        <button class="btn-secondary" id="btn-restart">
+          Clean Another Image
+        </button>
       </section>
     </main>
 
     <article class="seo-content">
+      [Image of how EXIF metadata is embedded in image files]
       <h2>Why remove EXIF metadata?</h2>
       <p>
-        Most modern smartphones and cameras automatically embed hidden data
-        (EXIF) into every photo you take. This can include the
-        <strong>exact GPS coordinates</strong> of your home, the date the photo
-        was taken, and your device model.
+        Most modern smartphones embed hidden data (EXIF) into every photo. This
+        often includes <strong>GPS coordinates</strong> (latitude/longitude),
+        the exact date/time, and your device model.
       </p>
 
       <h3>What DataDiet Removes:</h3>
       <ul>
         <li>
-          <strong>Geolocation:</strong> Latitude and longitude coordinates that
-          pinpoint where the photo was taken.
+          <strong>Geolocation:</strong> Exact map coordinates of where the photo
+          was taken.
         </li>
         <li>
           <strong>Device Info:</strong> Phone model, lens type, and software
@@ -136,23 +151,6 @@
           <strong>Settings:</strong> Shutter speed, ISO, aperture, and flash
           settings.
         </li>
-        <li><strong>Timestamps:</strong> Exact date and time of capture.</li>
-      </ul>
-
-      <h3>Common Use Cases</h3>
-      <ul>
-        <li>
-          <strong>Selling items online:</strong> Don't reveal your home address
-          in photos of items for sale.
-        </li>
-        <li>
-          <strong>Social Media:</strong> Protect your privacy when posting on
-          public forums (Reddit, Twitter).
-        </li>
-        <li>
-          <strong>Whistleblowing / Journalism:</strong> Ensure total anonymity
-          by scrubbing source device data.
-        </li>
       </ul>
 
       <h3>Frequently Asked Questions</h3>
@@ -160,16 +158,15 @@
         <span class="faq-question">Does this affect image quality?</span>
         <p>
           DataDiet creates a new copy of your image. While it preserves visual
-          quality (set to 100%), technically it is a new file. The visual
-          difference is imperceptible.
+          quality (set to 100%), technically it is a new file container, which
+          guarantees the old metadata is gone.
         </p>
       </div>
       <div class="faq-item">
-        <span class="faq-question">Can I choose to keep some data?</span>
+        <span class="faq-question">Is it safe?</span>
         <p>
-          No. For maximum security, DataDiet uses a "nuclear" approach. It
-          completely destroys the metadata container so nothing is accidentally
-          left behind.
+          Yes. All processing happens in your browser. We never see your
+          location data.
         </p>
       </div>
     </article>
