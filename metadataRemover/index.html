@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>DataDiet | Free EXIF & Metadata Remover</title>
+    <meta
+      name="description"
+      content="Remove hidden GPS location, camera details, and EXIF metadata from photos. Protect your privacy before sharing images online. 100% Client-side."
+    />
+    <meta
+      name="keywords"
+      content="exif remover, remove metadata from photo, delete gps from photo, image privacy tool, scrub photos, online exif cleaner"
+    />
+    <link
+      rel="canonical"
+      href="https://photodiet.netlify.app/metadataRemover/"
+    />
+
+    <link rel="icon" href="../public/icon/Icon_white.png" type="image/png" />
+
+    <link rel="stylesheet" href="style.css" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "DataDiet",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Web Browser",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "description": "Browser-based tool to strip EXIF, GPS, and metadata from images for privacy.",
+        "featureList": "GPS removal, Camera data scrubbing, Client-side processing",
+        "screenshot": "https://photodiet.netlify.app/public/icon/IconText_white.png"
+      }
+    </script>
+  </head>
+  <body>
+    <header>
+      <a href="/" class="back-link">← Back to Tools</a>
+      <img
+        src="../public/icon/IconText_white.png"
+        alt="PhotoDiet"
+        class="main-logo"
+      />
+      <div class="tool-name">DataDiet (Metadata Scrub)</div>
+      <p class="subtitle">Remove hidden GPS & device data from your photos.</p>
+    </header>
+
+    <main>
+      <section class="upload-zone" id="drop-zone">
+        <div id="upload-content">
+          <div class="upload-icon">🛡️</div>
+          <h3>Drag & Drop to Scrub</h3>
+          <p class="upload-hint">Supports JPG, PNG, WebP</p>
+        </div>
+        <input type="file" id="file-input" accept="image/*" />
+      </section>
+
+      <section class="process-view hidden" id="process-view">
+        <div class="file-card">
+          <img id="preview-thumb" alt="Thumbnail" />
+          <div class="file-details">
+            <span id="file-name" class="fname">image.jpg</span>
+            <span class="status-badge">Ready to Clean</span>
+          </div>
+          <button class="btn-text-danger" id="btn-remove">Remove</button>
+        </div>
+
+        <div class="data-list">
+          <h3>Select Data to Wipe:</h3>
+          <div class="data-toggles">
+            <div class="toggle-item checked">
+              <span class="check-icon">✓</span>
+              <span class="label">📍 GPS Coordinates</span>
+            </div>
+            <div class="toggle-item checked">
+              <span class="check-icon">✓</span>
+              <span class="label">📷 Camera Settings</span>
+            </div>
+            <div class="toggle-item checked">
+              <span class="check-icon">✓</span>
+              <span class="label">📅 Date & Time</span>
+            </div>
+            <div class="toggle-item checked">
+              <span class="check-icon">✓</span>
+              <span class="label">📝 Copyright Info</span>
+            </div>
+          </div>
+          <p class="security-note">
+            <small
+              >Note: This tool rebuilds your image pixel-by-pixel.
+              <strong>100% of non-visual data will be destroyed.</strong></small
+            >
+          </p>
+        </div>
+
+        <div class="action-area">
+          <button class="btn-download" id="btn-process">
+            Scrub Metadata & Download
+          </button>
+        </div>
+      </section>
+
+      <section class="success-view hidden" id="success-view">
+        <div class="success-icon">✨</div>
+        <h2>Image Cleaned!</h2>
+        <p>Your photo is now safe to share.</p>
+        <div class="btn-group">
+          <button class="btn-secondary" id="btn-restart">Clean Another</button>
+        </div>
+      </section>
+    </main>
+
+    <article class="seo-content">
+      <h2>Why remove EXIF metadata?</h2>
+      <p>
+        Most modern smartphones and cameras automatically embed hidden data
+        (EXIF) into every photo you take. This can include the
+        <strong>exact GPS coordinates</strong> of your home, the date the photo
+        was taken, and your device model.
+      </p>
+
+      <h3>What DataDiet Removes:</h3>
+      <ul>
+        <li>
+          <strong>Geolocation:</strong> Latitude and longitude coordinates that
+          pinpoint where the photo was taken.
+        </li>
+        <li>
+          <strong>Device Info:</strong> Phone model, lens type, and software
+          version.
+        </li>
+        <li>
+          <strong>Settings:</strong> Shutter speed, ISO, aperture, and flash
+          settings.
+        </li>
+        <li><strong>Timestamps:</strong> Exact date and time of capture.</li>
+      </ul>
+
+      <h3>Common Use Cases</h3>
+      <ul>
+        <li>
+          <strong>Selling items online:</strong> Don't reveal your home address
+          in photos of items for sale.
+        </li>
+        <li>
+          <strong>Social Media:</strong> Protect your privacy when posting on
+          public forums (Reddit, Twitter).
+        </li>
+        <li>
+          <strong>Whistleblowing / Journalism:</strong> Ensure total anonymity
+          by scrubbing source device data.
+        </li>
+      </ul>
+
+      <h3>Frequently Asked Questions</h3>
+      <div class="faq-item">
+        <span class="faq-question">Does this affect image quality?</span>
+        <p>
+          DataDiet creates a new copy of your image. While it preserves visual
+          quality (set to 100%), technically it is a new file. The visual
+          difference is imperceptible.
+        </p>
+      </div>
+      <div class="faq-item">
+        <span class="faq-question">Can I choose to keep some data?</span>
+        <p>
+          No. For maximum security, DataDiet uses a "nuclear" approach. It
+          completely destroys the metadata container so nothing is accidentally
+          left behind.
+        </p>
+      </div>
+    </article>
+
+    <footer>
+      <p>&copy; 2025 PhotoDiet. 100% Client-Side & Secure.</p>
+      <p class="dev-credit">
+        Built by
+        <a href="https://shreejamanandhar.com.np" target="_blank" rel="noopener"
+          >Shreeja Manandhar</a
+        >
+      </p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

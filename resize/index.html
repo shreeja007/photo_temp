@@ -7,11 +7,11 @@
     <title>SizeDiet | Free Image Resizer for Social Media</title>
     <meta
       name="description"
-      content="Resize images for Instagram, YouTube, Twitter, and more. Free online image resizer with custom dimensions and social media presets."
+      content="Resize and crop images for Instagram, YouTube, Twitter, and more. Free online tool with aspect ratio locking and social media presets."
     />
     <meta
       name="keywords"
-      content="image resizer, resize photo for instagram, youtube thumbnail resizer, change image dimensions, pixel resizer"
+      content="image resizer, instagram cropper, youtube thumbnail size, change photo dimensions, pixel resizer, crop image online"
     />
     <link rel="canonical" href="https://photodiet.netlify.app/resize/" />
 
@@ -27,8 +27,8 @@
         "applicationCategory": "MultimediaApplication",
         "operatingSystem": "Web Browser",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-        "description": "Browser-based image resizer with presets for social media platforms.",
-        "featureList": "Social media presets, Custom dimensions, Aspect ratio lock",
+        "description": "Browser-based image resizer and cropper with presets for social media platforms.",
+        "featureList": "Social media presets, Aspect ratio lock, Interactive cropping, Rotate and Flip",
         "screenshot": "https://photodiet.netlify.app/public/icon/IconText_white.png"
       }
     </script>
@@ -43,41 +43,54 @@
       />
       <div class="tool-name">SizeDiet (Resizer)</div>
       <p class="subtitle">
-        Resize dimensions for social media or custom pixels.
+        Resize & crop images for social media or custom dimensions
       </p>
     </header>
 
     <main>
       <section class="upload-zone" id="drop-zone">
         <div id="upload-content">
-          <div class="upload-icon">📐</div>
-          <h3>Drag & Drop to Resize</h3>
+          <div class="upload-icon">📸</div>
+          <h3>Drag & Drop or Click to Upload</h3>
           <p class="upload-hint">Supports JPG, PNG, WebP</p>
-        </div>
-        <div id="file-info" class="hidden">
-          <span id="file-name"></span>
-          <button id="btn-remove" class="btn-text-danger">Remove</button>
         </div>
         <input type="file" id="file-input" accept="image/*" />
       </section>
 
+      <section class="file-summary hidden" id="preview-section">
+        <div class="summary-left">
+          <img id="small-preview" alt="Thumbnail" />
+          <div class="file-text">
+            <span class="fname" id="file-name">filename.jpg</span>
+            <span class="fdims" id="original-dims">1920 × 1080 px</span>
+          </div>
+        </div>
+        <button class="btn-text-danger" id="btn-remove">Remove</button>
+      </section>
+
       <section class="controls hidden" id="controls">
+        <h3 class="controls-title">Choose Output Size</h3>
+
         <div class="control-group">
-          <label>Choose a Preset:</label>
+          <label>Quick Presets:</label>
           <select id="preset-select">
             <option value="custom">Custom Dimensions</option>
             <optgroup label="Instagram">
-              <option value="1080x1080">Instagram Square (1080x1080)</option>
-              <option value="1080x1350">Instagram Portrait (1080x1350)</option>
-              <option value="1080x1920">Instagram Story (1080x1920)</option>
+              <option value="1080x1080">Instagram Square (1080×1080)</option>
+              <option value="1080x1350">Instagram Portrait (1080×1350)</option>
+              <option value="1080x1920">Instagram Story (1080×1920)</option>
             </optgroup>
             <optgroup label="YouTube">
-              <option value="1280x720">Thumbnail (1280x720)</option>
-              <option value="2560x1440">Channel Art (2560x1440)</option>
+              <option value="1280x720">Thumbnail (1280×720)</option>
+              <option value="2560x1440">Channel Art (2560×1440)</option>
             </optgroup>
             <optgroup label="Twitter / X">
-              <option value="1500x500">Header (1500x500)</option>
-              <option value="1600x900">Post (1600x900)</option>
+              <option value="1500x500">Header (1500×500)</option>
+              <option value="1600x900">Post (1600×900)</option>
+            </optgroup>
+            <optgroup label="Facebook">
+              <option value="1200x630">Post (1200×630)</option>
+              <option value="820x312">Cover Photo (820×312)</option>
             </optgroup>
           </select>
         </div>
@@ -105,43 +118,132 @@
         </div>
       </section>
 
+      <section class="crop-editor hidden" id="crop-editor">
+        <div class="editor-header">
+          <h3>Position Your Image</h3>
+          <div class="fit-toggle">
+            <button class="fit-btn active" data-mode="cover">Fill Frame</button>
+            <button class="fit-btn" data-mode="contain">Fit Inside</button>
+          </div>
+        </div>
+
+        <div class="transform-controls">
+          <div class="transform-group">
+            <span class="transform-label">Rotate:</span>
+            <button
+              class="transform-btn"
+              id="rotate-left"
+              title="Rotate 90° Left"
+            >
+              ↶
+            </button>
+            <button
+              class="transform-btn"
+              id="rotate-right"
+              title="Rotate 90° Right"
+            >
+              ↷
+            </button>
+          </div>
+          <div class="transform-group">
+            <span class="transform-label">Flip:</span>
+            <button
+              class="transform-btn"
+              id="flip-horizontal"
+              title="Flip Horizontal"
+            >
+              ↔
+            </button>
+            <button
+              class="transform-btn"
+              id="flip-vertical"
+              title="Flip Vertical"
+            >
+              ↕
+            </button>
+          </div>
+        </div>
+
+        <div class="crop-canvas-container" id="canvas-container">
+          <canvas id="crop-canvas"></canvas>
+          <div class="crop-overlay">
+            <div class="crop-corners corner-tl"></div>
+            <div class="crop-corners corner-tr"></div>
+            <div class="crop-corners corner-bl"></div>
+            <div class="crop-corners corner-br"></div>
+          </div>
+        </div>
+
+        <div class="zoom-controls">
+          <button class="zoom-btn" id="zoom-out">−</button>
+          <input
+            type="range"
+            id="zoom-slider"
+            class="zoom-slider"
+            min="50"
+            max="200"
+            value="100"
+          />
+          <button class="zoom-btn" id="zoom-in">+</button>
+        </div>
+
+        <div class="crop-info">
+          <strong>💡 Drag to reposition • Scroll to zoom</strong><br />
+          Final output: <span id="output-dims">-</span>
+        </div>
+      </section>
+
       <div class="action-area hidden" id="action-area">
-        <button class="btn-download" id="btn-resize">Resize & Download</button>
-        <p id="status-msg"></p>
+        <button class="btn-download" id="btn-resize">
+          Download Resized Image
+        </button>
       </div>
     </main>
 
     <article class="seo-content">
-      <h2>Why use SizeDiet Image Resizer?</h2>
+      <h2>Why use SizeDiet Resizer?</h2>
       <p>
-        SizeDiet helps you fit your photos perfectly onto any platform. Whether
-        you need a crisp <strong>Instagram Story</strong> or a pixel-perfect
-        <strong>YouTube Thumbnail</strong>, SizeDiet resizes your images
-        instantly in the browser without uploading them to a server.
+        SizeDiet gives you professional control over your images directly in the
+        browser. Unlike basic resizers, SizeDiet lets you crop, position,
+        rotate, and scale your image to fit perfectly into specific social media
+        dimensions.
       </p>
 
-      <h3>Social Media Size Cheat Sheet (2025)</h3>
+      <h3>Key Features</h3>
       <ul>
-        <li><strong>Instagram Square:</strong> 1080 x 1080 px</li>
-        <li><strong>Instagram Portrait:</strong> 1080 x 1350 px</li>
-        <li><strong>YouTube Thumbnail:</strong> 1280 x 720 px</li>
-        <li><strong>Twitter Header:</strong> 1500 x 500 px</li>
+        <li>
+          <strong>Smart Presets:</strong> One-click resizing for Instagram,
+          YouTube, Twitter, and more.
+        </li>
+        <li>
+          <strong>Composition Control:</strong> "Fill Frame" or "Fit Inside"
+          modes ensure no important details are cut off.
+        </li>
+        <li>
+          <strong>Transformation Tools:</strong> Rotate and flip images to
+          correct orientation before saving.
+        </li>
+        <li>
+          <strong>Privacy First:</strong> All processing happens on your device.
+          No uploads.
+        </li>
       </ul>
 
       <h3>Frequently Asked Questions</h3>
       <div class="faq-item">
-        <span class="faq-question">Does resizing reduce quality?</span>
+        <span class="faq-question">What is "Fill Frame" vs "Fit Inside"?</span>
         <p>
-          Making an image smaller (downscaling) usually keeps it sharp. Making
-          it larger (upscaling) may cause blurriness, but SizeDiet uses smart
-          smoothing to help.
+          <strong>Fill Frame</strong> zooms the image to cover the entire output
+          area (good for aesthetic posts). <strong>Fit Inside</strong> ensures
+          the whole image is visible with white space around it (good for
+          diagrams or screenshots).
         </p>
       </div>
       <div class="faq-item">
-        <span class="faq-question">How does "Lock Aspect Ratio" work?</span>
+        <span class="faq-question">Will my image quality decrease?</span>
         <p>
-          When the lock is on (🔒), changing the width automatically adjusts the
-          height to keep your image from looking squished or stretched.
+          We use high-quality image smoothing algorithms when resizing to keep
+          your images looking crisp, even when scaling down significantly.
         </p>
       </div>
     </article>

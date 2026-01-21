@@ -3,33 +3,58 @@ document.addEventListener("DOMContentLoaded", () => {
   const els = {
     dropZone: document.getElementById("drop-zone"),
     fileInput: document.getElementById("file-input"),
-    controls: document.getElementById("controls"),
     uploadContent: document.getElementById("upload-content"),
-    fileInfo: document.getElementById("file-info"),
+
+    // New Preview Elements
+    previewSection: document.getElementById("preview-section"),
+    smallPreview: document.getElementById("small-preview"), // Changed ID
     fileName: document.getElementById("file-name"),
+    originalDims: document.getElementById("original-dims"),
     btnRemove: document.getElementById("btn-remove"),
 
-    // Resizer Specifics
+    controls: document.getElementById("controls"),
     presetSelect: document.getElementById("preset-select"),
     inputWidth: document.getElementById("input-width"),
     inputHeight: document.getElementById("input-height"),
     btnLock: document.getElementById("btn-lock"),
-
+    cropEditor: document.getElementById("crop-editor"),
+    cropCanvas: document.getElementById("crop-canvas"),
+    canvasContainer: document.getElementById("canvas-container"),
+    zoomSlider: document.getElementById("zoom-slider"),
+    zoomIn: document.getElementById("zoom-in"),
+    zoomOut: document.getElementById("zoom-out"),
     actionArea: document.getElementById("action-area"),
     btnResize: document.getElementById("btn-resize"),
-    statusMsg: document.getElementById("status-msg"),
+    outputDims: document.getElementById("output-dims"),
+    rotateLeft: document.getElementById("rotate-left"),
+    rotateRight: document.getElementById("rotate-right"),
+    flipHorizontal: document.getElementById("flip-horizontal"),
+    flipVertical: document.getElementById("flip-vertical"),
   };
 
-  let currentFile = null;
-  let originalWidth = 0;
-  let originalHeight = 0;
-  let aspectRatio = 0;
-  let isLocked = true; // Default locked
+  let state = {
+    file: null,
+    imageBitmap: null,
+    originalWidth: 0,
+    originalHeight: 0,
+    aspectRatio: 0,
+    isLocked: true,
+    targetWidth: 0,
+    targetHeight: 0,
+    offsetX: 0,
+    offsetY: 0,
+    scale: 1,
+    isDragging: false,
+    lastX: 0,
+    lastY: 0,
+    fitMode: "cover",
+    rotation: 0,
+    flipH: false,
+    flipV: false,
+  };
 
-  // --- UPLOAD HANDLERS ---
-  els.dropZone.addEventListener("click", (e) => {
-    if (e.target !== els.btnRemove) els.fileInput.click();
-  });
+  // Upload handlers
+  els.dropZone.addEventListener("click", () => els.fileInput.click());
 
   ["dragenter", "dragover"].forEach((e) => {
     els.dropZone.addEventListener(e, (evt) => {
@@ -46,6 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   els.dropZone.addEventListener("drop", (e) => {
+    e.preventDefault();
     if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
   });
 
@@ -53,153 +79,388 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target.files.length) handleFile(e.target.files[0]);
   });
 
-  els.btnRemove.addEventListener("click", (e) => {
-    e.stopPropagation();
-    resetUI();
-  });
+  els.btnRemove.addEventListener("click", resetUI);
 
-  // --- MAIN LOGIC ---
   async function handleFile(file) {
     if (!file.type.startsWith("image/")) {
       alert("Please upload an image file.");
       return;
     }
-    currentFile = file;
-    els.fileName.textContent = file.name;
 
-    // Get Dimensions
+    state.file = file;
+
+    // Create bitmap for processing
     const bitmap = await createImageBitmap(file);
-    originalWidth = bitmap.width;
-    originalHeight = bitmap.height;
-    aspectRatio = originalWidth / originalHeight;
+    state.imageBitmap = bitmap;
+    state.originalWidth = bitmap.width;
+    state.originalHeight = bitmap.height;
+    state.aspectRatio = state.originalWidth / state.originalHeight;
 
-    // Set Initial Values (Custom by default to show original size)
-    els.inputWidth.value = originalWidth;
-    els.inputHeight.value = originalHeight;
+    // SHOW COMPACT PREVIEW
+    const url = URL.createObjectURL(file);
+    els.smallPreview.src = url; // Set thumbnail
+    els.fileName.textContent = file.name;
+    els.originalDims.textContent = `${state.originalWidth} × ${state.originalHeight} px`;
+
+    // Set default dimensions to original size
+    els.inputWidth.value = state.originalWidth;
+    els.inputHeight.value = state.originalHeight;
     els.presetSelect.value = "custom";
 
-    // Show UI
-    els.uploadContent.classList.add("hidden");
-    els.fileInfo.classList.remove("hidden");
-    els.dropZone.classList.add("collapsed");
+    // Toggle Views
+    els.dropZone.classList.add("hidden");
+    els.previewSection.classList.remove("hidden");
     els.controls.classList.remove("hidden");
-    els.actionArea.classList.remove("hidden");
+
+    // Initialize Crop Editor
+    updateCropEditor();
   }
 
-  // --- INPUT HANDLERS ---
+  // --- (Rest of logic remains the same) ---
+  // Copy/Paste the Dimension controls, Transform controls, and Resize logic
+  // from the previous script here. The key change was the `handleFile` function above.
 
-  // Toggle Lock
+  // Dimension controls
   els.btnLock.addEventListener("click", () => {
-    isLocked = !isLocked;
+    state.isLocked = !state.isLocked;
     els.btnLock.classList.toggle("active");
-    els.btnLock.textContent = isLocked ? "🔒" : "🔓";
+    els.btnLock.textContent = state.isLocked ? "🔒" : "🔓";
 
-    // If re-locking, sync height to width immediately
-    if (isLocked && els.inputWidth.value) {
-      els.inputHeight.value = Math.round(els.inputWidth.value / aspectRatio);
+    if (state.isLocked && els.inputWidth.value) {
+      els.inputHeight.value = Math.round(
+        els.inputWidth.value / state.aspectRatio,
+      );
+      updateCropEditor();
     }
   });
 
-  // Handle Width Change
   els.inputWidth.addEventListener("input", () => {
-    els.presetSelect.value = "custom"; // Switch dropdown to custom
-    if (isLocked && els.inputWidth.value) {
-      els.inputHeight.value = Math.round(els.inputWidth.value / aspectRatio);
+    els.presetSelect.value = "custom";
+    if (state.isLocked && els.inputWidth.value) {
+      els.inputHeight.value = Math.round(
+        els.inputWidth.value / state.aspectRatio,
+      );
     }
+    updateCropEditor();
   });
 
-  // Handle Height Change
   els.inputHeight.addEventListener("input", () => {
     els.presetSelect.value = "custom";
-    if (isLocked && els.inputHeight.value) {
-      els.inputWidth.value = Math.round(els.inputHeight.value * aspectRatio);
+    if (state.isLocked && els.inputHeight.value) {
+      els.inputWidth.value = Math.round(
+        els.inputHeight.value * state.aspectRatio,
+      );
     }
+    updateCropEditor();
   });
 
-  // Handle Preset Selection
   els.presetSelect.addEventListener("change", () => {
     const val = els.presetSelect.value;
     if (val === "custom") return;
 
     const [w, h] = val.split("x").map(Number);
-
-    // Update inputs
     els.inputWidth.value = w;
     els.inputHeight.value = h;
-
-    // Disable lock visually for presets (since ratio is fixed by preset)
-    // But logic-wise we just let the inputs update.
+    updateCropEditor();
   });
 
-  // --- RESIZE EXECUTION ---
-  els.btnResize.addEventListener("click", async () => {
-    if (!currentFile) return;
-
+  function updateCropEditor() {
     const w = parseInt(els.inputWidth.value);
     const h = parseInt(els.inputHeight.value);
 
-    if (!w || !h) {
-      alert("Please enter valid dimensions");
-      return;
+    if (!w || !h || !state.imageBitmap) return;
+
+    state.targetWidth = w;
+    state.targetHeight = h;
+
+    els.cropEditor.classList.remove("hidden");
+    els.actionArea.classList.remove("hidden");
+    els.outputDims.textContent = `${w} × ${h} px`;
+
+    initCropCanvas();
+  }
+
+  function initCropCanvas() {
+    const container = els.canvasContainer;
+    const maxWidth = Math.min(600, container.clientWidth);
+    const targetAspect = state.targetWidth / state.targetHeight;
+
+    const canvasWidth = maxWidth;
+    const canvasHeight = canvasWidth / targetAspect;
+
+    els.cropCanvas.width = canvasWidth;
+    els.cropCanvas.height = canvasHeight;
+
+    els.cropCanvas.style.width = canvasWidth + "px";
+    els.cropCanvas.style.height = canvasHeight + "px";
+
+    state.scale = 1;
+    state.offsetX = 0;
+    state.offsetY = 0;
+    els.zoomSlider.value = 100;
+
+    applyFitMode();
+    drawCropPreview();
+  }
+
+  function applyFitMode() {
+    const canvasAspect = els.cropCanvas.width / els.cropCanvas.height;
+    const isRotated = state.rotation === 90 || state.rotation === 270;
+    const effectiveImgWidth = isRotated
+      ? state.originalHeight
+      : state.originalWidth;
+    const effectiveImgHeight = isRotated
+      ? state.originalWidth
+      : state.originalHeight;
+    const imageAspect = effectiveImgWidth / effectiveImgHeight;
+
+    if (state.fitMode === "cover") {
+      if (imageAspect > canvasAspect) {
+        state.scale = els.cropCanvas.height / effectiveImgHeight;
+      } else {
+        state.scale = els.cropCanvas.width / effectiveImgWidth;
+      }
+    } else {
+      if (imageAspect > canvasAspect) {
+        state.scale = els.cropCanvas.width / effectiveImgWidth;
+      } else {
+        state.scale = els.cropCanvas.height / effectiveImgHeight;
+      }
     }
+    state.offsetX = 0;
+    state.offsetY = 0;
+    els.zoomSlider.value = 100;
+  }
+
+  document.querySelectorAll(".fit-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document
+        .querySelectorAll(".fit-btn")
+        .forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      state.fitMode = btn.dataset.mode;
+      applyFitMode();
+      drawCropPreview();
+    });
+  });
+
+  els.rotateLeft.addEventListener("click", () => {
+    state.rotation = (state.rotation - 90 + 360) % 360;
+    applyFitMode();
+    drawCropPreview();
+  });
+
+  els.rotateRight.addEventListener("click", () => {
+    state.rotation = (state.rotation + 90) % 360;
+    applyFitMode();
+    drawCropPreview();
+  });
+
+  els.flipHorizontal.addEventListener("click", () => {
+    state.flipH = !state.flipH;
+    drawCropPreview();
+  });
+
+  els.flipVertical.addEventListener("click", () => {
+    state.flipV = !state.flipV;
+    drawCropPreview();
+  });
+
+  function drawCropPreview() {
+    const ctx = els.cropCanvas.getContext("2d");
+    ctx.clearRect(0, 0, els.cropCanvas.width, els.cropCanvas.height);
+    ctx.fillStyle = "#f0f0f0";
+    ctx.fillRect(0, 0, els.cropCanvas.width, els.cropCanvas.height);
+    ctx.save();
+    ctx.translate(
+      els.cropCanvas.width / 2 + state.offsetX,
+      els.cropCanvas.height / 2 + state.offsetY,
+    );
+    ctx.rotate((state.rotation * Math.PI) / 180);
+    ctx.scale(
+      state.scale * (state.flipH ? -1 : 1),
+      state.scale * (state.flipV ? -1 : 1),
+    );
+    ctx.drawImage(
+      state.imageBitmap,
+      -state.originalWidth / 2,
+      -state.originalHeight / 2,
+    );
+    ctx.restore();
+  }
+
+  els.zoomSlider.addEventListener("input", (e) => {
+    const zoom = e.target.value / 100;
+    const canvasAspect = els.cropCanvas.width / els.cropCanvas.height;
+    const isRotated = state.rotation === 90 || state.rotation === 270;
+    const effectiveImgWidth = isRotated
+      ? state.originalHeight
+      : state.originalWidth;
+    const effectiveImgHeight = isRotated
+      ? state.originalWidth
+      : state.originalHeight;
+    const imageAspect = effectiveImgWidth / effectiveImgHeight;
+
+    let baseScale;
+    if (state.fitMode === "cover") {
+      baseScale =
+        imageAspect > canvasAspect
+          ? els.cropCanvas.height / effectiveImgHeight
+          : els.cropCanvas.width / effectiveImgWidth;
+    } else {
+      baseScale =
+        imageAspect > canvasAspect
+          ? els.cropCanvas.width / effectiveImgWidth
+          : els.cropCanvas.height / effectiveImgHeight;
+    }
+
+    state.scale = baseScale * zoom;
+    drawCropPreview();
+  });
+
+  els.zoomIn.addEventListener("click", () => {
+    els.zoomSlider.value = Math.min(200, parseInt(els.zoomSlider.value) + 10);
+    els.zoomSlider.dispatchEvent(new Event("input"));
+  });
+
+  els.zoomOut.addEventListener("click", () => {
+    els.zoomSlider.value = Math.max(50, parseInt(els.zoomSlider.value) - 10);
+    els.zoomSlider.dispatchEvent(new Event("input"));
+  });
+
+  els.cropCanvas.addEventListener("mousedown", startDrag);
+  els.cropCanvas.addEventListener("touchstart", startDrag);
+
+  function startDrag(e) {
+    state.isDragging = true;
+    const pos = getEventPos(e);
+    state.lastX = pos.x;
+    state.lastY = pos.y;
+    document.addEventListener("mousemove", drag);
+    document.addEventListener("mouseup", stopDrag);
+    document.addEventListener("touchmove", drag);
+    document.addEventListener("touchend", stopDrag);
+  }
+
+  function drag(e) {
+    if (!state.isDragging) return;
+    e.preventDefault();
+    const pos = getEventPos(e);
+    const dx = pos.x - state.lastX;
+    const dy = pos.y - state.lastY;
+    state.offsetX += dx;
+    state.offsetY += dy;
+    state.lastX = pos.x;
+    state.lastY = pos.y;
+    drawCropPreview();
+  }
+
+  function stopDrag() {
+    state.isDragging = false;
+    document.removeEventListener("mousemove", drag);
+    document.removeEventListener("mouseup", stopDrag);
+    document.removeEventListener("touchmove", drag);
+    document.removeEventListener("touchend", stopDrag);
+  }
+
+  function getEventPos(e) {
+    const rect = els.cropCanvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
+  }
+
+  els.btnResize.addEventListener("click", async () => {
+    if (!state.file) return;
 
     els.btnResize.textContent = "Processing...";
     els.btnResize.disabled = true;
 
     try {
-      const bitmap = await createImageBitmap(currentFile);
-
-      const canvas = document.createElement("canvas");
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext("2d");
-
-      // High quality scaling
+      const outputCanvas = document.createElement("canvas");
+      outputCanvas.width = state.targetWidth;
+      outputCanvas.height = state.targetHeight;
+      const ctx = outputCanvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, state.targetWidth, state.targetHeight);
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";
 
-      ctx.drawImage(bitmap, 0, 0, w, h);
+      const scaleMapX = state.targetWidth / els.cropCanvas.width;
+      const scaleMapY = state.targetHeight / els.cropCanvas.height;
+      const finalScale = state.scale * scaleMapX;
 
-      canvas.toBlob(
+      ctx.save();
+      ctx.translate(
+        (els.cropCanvas.width / 2 + state.offsetX) * scaleMapX,
+        (els.cropCanvas.height / 2 + state.offsetY) * scaleMapY,
+      );
+      ctx.rotate((state.rotation * Math.PI) / 180);
+      ctx.scale(
+        finalScale * (state.flipH ? -1 : 1),
+        finalScale * (state.flipV ? -1 : 1),
+      );
+      ctx.drawImage(
+        state.imageBitmap,
+        -state.originalWidth / 2,
+        -state.originalHeight / 2,
+      );
+      ctx.restore();
+
+      outputCanvas.toBlob(
         (blob) => {
-          downloadFile(blob);
-          els.btnResize.textContent = "Resize & Download";
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          const ext = state.file.type.split("/")[1];
+          const baseName = state.file.name.replace(/\.[^.]+$/, "");
+          const dimStr = `${state.targetWidth}x${state.targetHeight}`;
+          link.download = `${baseName}-${dimStr}.${ext}`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          els.btnResize.textContent = "Download Resized Image";
           els.btnResize.disabled = false;
         },
-        currentFile.type,
+        state.file.type,
         0.95,
       );
     } catch (err) {
       console.error(err);
-      els.statusMsg.textContent = "Error resizing file.";
-      els.btnResize.textContent = "Try Again";
+      alert("Error processing image");
+      els.btnResize.textContent = "Download Resized Image";
       els.btnResize.disabled = false;
     }
   });
 
-  function downloadFile(blob) {
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-
-    // Add dimension to filename (e.g., photo-1080x1080.jpg)
-    const nameParts = currentFile.name.split(".");
-    const ext = nameParts.pop();
-    const base = nameParts.join(".");
-    const dimStr = `${els.inputWidth.value}x${els.inputHeight.value}`;
-
-    link.download = `${base}-${dimStr}.${ext}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
   function resetUI() {
-    currentFile = null;
+    if (els.smallPreview.src) URL.revokeObjectURL(els.smallPreview.src);
+
+    state = {
+      file: null,
+      imageBitmap: null,
+      originalWidth: 0,
+      originalHeight: 0,
+      aspectRatio: 0,
+      isLocked: true,
+      targetWidth: 0,
+      targetHeight: 0,
+      offsetX: 0,
+      offsetY: 0,
+      scale: 1,
+      isDragging: false,
+      lastX: 0,
+      lastY: 0,
+      fitMode: "cover",
+      rotation: 0,
+      flipH: false,
+      flipV: false,
+    };
+
     els.fileInput.value = "";
-    els.uploadContent.classList.remove("hidden");
-    els.fileInfo.classList.add("hidden");
-    els.dropZone.classList.remove("collapsed");
+    els.dropZone.classList.remove("hidden");
+    els.previewSection.classList.add("hidden");
     els.controls.classList.add("hidden");
+    els.cropEditor.classList.add("hidden");
     els.actionArea.classList.add("hidden");
   }
 });
