@@ -3,33 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <title>SizeDiet | Free Image Resizer for Social Media</title>
+    <title>DataDiet | Free EXIF & Metadata Remover</title>
     <meta
       name="description"
-      content="Resize and crop images for Instagram, YouTube, Twitter, and more. Free online tool with aspect ratio locking and social media presets."
+      content="Remove hidden GPS location, camera details, and EXIF metadata from photos. Protect your privacy before sharing images online. 100% Client-side."
     />
-    <meta
-      name="keywords"
-      content="image resizer, instagram cropper, youtube thumbnail size, change photo dimensions, pixel resizer, crop image online"
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>"
     />
-    <link rel="canonical" href="https://photodiet.netlify.app/resize/" />
 
-    <link rel="icon" href="../public/icon/Icon_white.png" type="image/png" />
-
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "SizeDiet",
-        "applicationCategory": "MultimediaApplication",
-        "operatingSystem": "Web Browser",
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-        "description": "Browser-based image resizer and cropper with presets for social media platforms.",
-        "featureList": "Social media presets, Aspect ratio lock, Interactive cropping, Rotate and Flip",
-        "screenshot": "https://photodiet.netlify.app/public/icon/IconText_white.png"
-      }
-    </script>
+    <!-- EXIF Reader Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
 
     <style>
       :root {
@@ -38,8 +23,10 @@
         --text-primary: #1a1a1a;
         --text-secondary: #5e6c84;
         --accent-color: #2563eb;
-        --border-color: #e2e8f0;
+        --success-color: #16a34a;
+        --warning-color: #f59e0b;
         --danger-color: #ef4444;
+        --border-color: #e2e8f0;
         --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.04);
         --radius-lg: 16px;
       }
@@ -67,32 +54,16 @@
         display: none !important;
       }
 
-      /* HEADER & NAV */
+      /* Header */
       header {
         text-align: center;
         margin-bottom: 3rem;
         width: 100%;
         max-width: 900px;
-        position: relative;
       }
-      .back-link {
-        position: absolute;
-        left: 0;
-        top: 1rem;
-        text-decoration: none;
-        color: var(--text-secondary);
-        font-size: 0.9rem;
-        font-weight: 500;
-      }
-      .back-link:hover {
-        color: var(--accent-color);
-      }
-
       .main-logo {
-        height: 60px;
-        width: auto;
+        font-size: 2rem;
         margin-bottom: 0.5rem;
-        display: inline-block;
       }
       .tool-name {
         font-size: 1.5rem;
@@ -109,7 +80,7 @@
         max-width: 900px;
       }
 
-      /* UPLOAD ZONE */
+      /* Upload Zone */
       .upload-zone {
         background: var(--surface-color);
         border: 2px dashed var(--border-color);
@@ -132,303 +103,153 @@
         display: none;
       }
 
-      /* PREVIEW SECTION */
-      .image-preview-section {
+      /* Analysis Section */
+      .analysis-section {
         background: var(--surface-color);
         padding: 2rem;
         border-radius: var(--radius-lg);
         box-shadow: var(--shadow-soft);
         margin-bottom: 2rem;
+        animation: fadeIn 0.3s ease-out;
       }
 
-      .preview-header {
+      .file-header {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
+        gap: 1rem;
+        padding-bottom: 1.5rem;
         border-bottom: 1px solid var(--border-color);
+        margin-bottom: 1.5rem;
+      }
+
+      .file-thumb {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        background: #eee;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       }
 
       .file-info {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
+        flex: 1;
       }
       .file-name {
         font-weight: 600;
-        color: var(--text-primary);
+        font-size: 1.1rem;
+        display: block;
+        margin-bottom: 0.25rem;
       }
-      .file-dims {
+      .file-size {
         color: var(--text-secondary);
         font-size: 0.9rem;
       }
 
-      .btn-text-danger {
+      .btn-remove {
         background: none;
-        border: none;
-        color: var(--danger-color);
-        cursor: pointer;
-        font-weight: 500;
+        border: 1px solid var(--border-color);
         padding: 0.5rem 1rem;
-        border-radius: 6px;
-        transition: background 0.2s;
+        border-radius: 8px;
+        cursor: pointer;
+        color: var(--danger-color);
+        font-weight: 500;
+        transition: all 0.2s;
       }
-      .btn-text-danger:hover {
+      .btn-remove:hover {
         background: rgba(239, 68, 68, 0.1);
       }
 
-      .preview-image-container {
-        width: 100%;
-        max-width: 500px;
-        margin: 0 auto 1.5rem;
+      /* Alert Box */
+      .alert-box {
+        padding: 1rem;
         border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      }
-      .preview-image-container img {
-        width: 100%;
-        height: auto;
-        display: block;
-      }
-
-      /* CONTROLS */
-      .controls {
-        background: var(--surface-color);
-        padding: 2rem;
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-soft);
-        margin-bottom: 2rem;
-      }
-
-      .controls-title {
-        font-size: 1.1rem;
-        font-weight: 600;
         margin-bottom: 1.5rem;
-        color: var(--text-primary);
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
       }
-      .control-group {
-        margin-bottom: 1.5rem;
+      .alert-box.danger {
+        background: #fef2f2;
+        border: 1px solid #fee2e2;
+        color: #991b1b;
       }
-      .control-group label {
-        display: block;
+      .alert-box.warning {
+        background: #fffbeb;
+        border: 1px solid #fef3c7;
+        color: #92400e;
+      }
+      .alert-box.success {
+        background: #f0fdf4;
+        border: 1px solid #dcfce7;
+        color: #166534;
+      }
+      .alert-icon {
+        font-size: 1.5rem;
+      }
+      .alert-content {
+        flex: 1;
+      }
+      .alert-title {
         font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: var(--text-secondary);
-        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
       }
 
-      select {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
+      /* Metadata List */
+      .metadata-section h3 {
         font-size: 1rem;
-        background: #fff;
-      }
-
-      .dimensions-grid {
-        display: flex;
-        align-items: flex-end;
-        gap: 1rem;
-      }
-      .input-wrapper {
-        flex: 1;
-      }
-      .input-wrapper label {
-        display: block;
-        font-size: 0.8rem;
-        margin-bottom: 0.4rem;
-        color: var(--text-secondary);
-      }
-      .input-wrapper input {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        font-size: 1.1rem;
-        text-align: center;
-        font-weight: 600;
-      }
-
-      .lock-wrapper {
-        padding-bottom: 0.5rem;
-      }
-      .btn-lock {
-        background: none;
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-        cursor: pointer;
-        opacity: 0.4;
-        transition: all 0.2s;
-      }
-      .btn-lock.active {
-        opacity: 1;
-        background: #f0f9ff;
-        border-color: var(--accent-color);
-      }
-
-      /* CROP EDITOR */
-      .crop-editor {
-        background: var(--surface-color);
-        padding: 2rem;
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-soft);
-        margin-bottom: 2rem;
-      }
-
-      .editor-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--border-color);
-      }
-      .editor-header h3 {
-        font-size: 1.1rem;
-        color: var(--text-primary);
-      }
-
-      .fit-toggle {
-        display: flex;
-        gap: 0.5rem;
-        background: var(--bg-color);
-        padding: 4px;
-        border-radius: 8px;
-      }
-      .fit-btn {
-        padding: 0.5rem 1rem;
-        border: none;
-        background: transparent;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.85rem;
-        font-weight: 500;
-        color: var(--text-secondary);
-        transition: all 0.2s;
-      }
-      .fit-btn.active {
-        background: white;
-        color: var(--accent-color);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      /* TRANSFORM CONTROLS */
-      .transform-controls {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        margin-bottom: 1.5rem;
-        padding: 1rem;
-        background: var(--bg-color);
-        border-radius: 8px;
-      }
-      .transform-group {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-      }
-      .transform-label {
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-        font-weight: 600;
-        margin-right: 0.5rem;
-      }
-      .transform-btn {
-        background: white;
-        border: 1px solid var(--border-color);
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 1.2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-      }
-      .transform-btn:hover {
-        border-color: var(--accent-color);
-        background: var(--bg-color);
-        transform: scale(1.05);
-      }
-
-      .crop-canvas-container {
-        position: relative;
-        width: 100%;
-        max-width: 600px;
-        margin: 0 auto 1.5rem;
-        background: #f0f0f0;
-        border-radius: 8px;
-        overflow: hidden;
-        touch-action: none;
-      }
-      #crop-canvas {
-        display: block;
-        width: 100%;
-        height: auto;
-        cursor: move;
-      }
-
-      .crop-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        pointer-events: none;
-        border: 2px dashed var(--accent-color);
-        background: rgba(37, 99, 235, 0.1);
-      }
-
-      .zoom-controls {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 1rem;
         margin-bottom: 1rem;
-      }
-      .zoom-btn {
-        background: var(--surface-color);
-        border: 1px solid var(--border-color);
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        cursor: pointer;
-        font-size: 1.2rem;
+        color: var(--text-secondary);
         display: flex;
         align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-      }
-      .zoom-btn:hover {
-        background: var(--bg-color);
-        border-color: var(--accent-color);
-      }
-      .zoom-slider {
-        flex: 1;
-        max-width: 200px;
+        gap: 0.5rem;
       }
 
-      .crop-info {
-        text-align: center;
-        color: var(--text-secondary);
-        font-size: 0.85rem;
+      .metadata-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .metadata-item {
         padding: 1rem;
-        background: var(--bg-color);
+        background: #f8fafc;
         border-radius: 8px;
+        border: 1px solid var(--border-color);
+      }
+      .metadata-item.sensitive {
+        background: #fef2f2;
+        border-color: #fecaca;
+      }
+      .metadata-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        display: block;
+        margin-bottom: 0.25rem;
+      }
+      .metadata-value {
+        font-weight: 600;
+        font-size: 0.95rem;
+        word-break: break-all;
+      }
+      .sensitive-badge {
+        display: inline-block;
+        background: #ef4444;
+        color: white;
+        font-size: 0.7rem;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 0.5rem;
+        font-weight: 600;
       }
 
-      /* ACTION AREA */
+      /* Action Buttons */
       .action-area {
         text-align: center;
         margin-top: 2rem;
       }
-      .btn-download {
+
+      .btn-primary {
         background: var(--text-primary);
         color: white;
         border: none;
@@ -439,128 +260,137 @@
         cursor: pointer;
         box-shadow: var(--shadow-soft);
         transition: transform 0.2s;
+        width: 100%;
       }
-      .btn-download:hover {
+      .btn-primary:hover {
         transform: translateY(-2px);
       }
-      .btn-download:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
+      .btn-primary:disabled {
+        opacity: 0.7;
+        cursor: wait;
       }
 
-      /* SEO CONTENT */
-      .seo-content {
-        width: 100%;
-        max-width: 900px;
-        margin-top: 4rem;
-        margin-bottom: 3rem;
-        padding: 2rem;
-        background: #fff;
+      /* Success View */
+      .success-section {
+        background: var(--surface-color);
+        padding: 3rem 2rem;
         border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-soft);
+        text-align: center;
+        animation: fadeIn 0.3s ease-out;
+      }
+      .success-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+      .success-section h2 {
+        margin-bottom: 0.5rem;
+        color: var(--success-color);
+      }
+
+      .comparison-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin: 2rem 0;
+        text-align: left;
+      }
+
+      .comparison-card {
+        padding: 1.5rem;
+        background: #f8fafc;
+        border-radius: 8px;
         border: 1px solid var(--border-color);
       }
-      .seo-content h2 {
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-        color: var(--text-primary);
-      }
-      .seo-content h3 {
-        font-size: 1.15rem;
-        margin-top: 1.5rem;
-        margin-bottom: 0.5rem;
-        color: var(--text-primary);
-      }
-      .seo-content p {
-        color: var(--text-secondary);
-        margin-bottom: 1rem;
-        font-size: 0.95rem;
-        line-height: 1.6;
-      }
-      .seo-content ul {
-        padding-left: 1.25rem;
+      .comparison-card h4 {
+        font-size: 0.9rem;
         color: var(--text-secondary);
         margin-bottom: 1rem;
       }
-      .seo-content li {
-        margin-bottom: 0.5rem;
-        font-size: 0.95rem;
+      .stat-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border-color);
       }
-      .faq-item {
-        margin-bottom: 1.5rem;
+      .stat-item:last-child {
+        border-bottom: none;
       }
-      .faq-question {
+      .stat-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+      .stat-value {
         font-weight: 600;
-        color: var(--text-primary);
-        margin-bottom: 0.25rem;
-        display: block;
       }
 
-      /* FOOTER */
-      footer {
-        margin-top: auto;
-        padding-top: 3rem;
-        text-align: center;
-        font-size: 0.85rem;
-        color: var(--text-secondary);
+      .btn-secondary {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 1.5rem;
+        font-weight: 500;
+        transition: all 0.2s;
       }
-      .dev-credit {
-        margin-top: 0.5rem;
-        opacity: 0.8;
+      .btn-secondary:hover {
+        border-color: var(--text-primary);
+        background: #f8fafc;
       }
-      .dev-credit a {
-        text-decoration: underline;
-        color: inherit;
+
+      /* Loading Spinner */
+      .spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 0.8s linear infinite;
+        margin-right: 0.5rem;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       @media (max-width: 600px) {
-        .back-link {
-          position: static;
-          display: block;
-          margin-bottom: 1rem;
+        .metadata-grid {
+          grid-template-columns: 1fr;
         }
-        .dimensions-grid {
-          flex-direction: column;
-        }
-        .lock-wrapper {
-          order: -1;
-        }
-        .zoom-slider {
-          max-width: 150px;
-        }
-        .preview-header {
-          flex-direction: column;
-          gap: 1rem;
-          align-items: flex-start;
-        }
-        .transform-controls {
-          flex-direction: column;
-          gap: 1rem;
-        }
-        .transform-group {
-          justify-content: center;
+        .comparison-grid {
+          grid-template-columns: 1fr;
         }
       }
     </style>
   </head>
   <body>
     <header>
-      <a href="/" class="back-link">← Back to Tools</a>
-      <img
-        src="../public/icon/IconText_white.png"
-        alt="PhotoDiet"
-        class="main-logo"
-      />
-      <div class="tool-name">SizeDiet (Resizer)</div>
-      <p class="subtitle">
-        Resize & crop images for social media or custom dimensions
-      </p>
+      <div class="main-logo">🛡️</div>
+      <div class="tool-name">DataDiet Metadata Remover</div>
+      <p class="subtitle">Scan and remove hidden EXIF data from your photos</p>
     </header>
 
     <main>
-      <section class="upload-zone" id="drop-zone">
-        <div id="upload-content">
+      <!-- Upload Zone -->
+      <section class="upload-zone" id="upload-zone">
+        <div>
           <div class="upload-icon">📸</div>
-          <h3>Drag & Drop or Click to Upload</h3>
+          <h3>Drop Your Image Here</h3>
           <p
             style="
               font-size: 0.9rem;
@@ -568,290 +398,124 @@
               margin-top: 0.5rem;
             "
           >
-            Supports JPG, PNG, WebP
+            We'll scan for hidden metadata and show you what's exposed
           </p>
         </div>
         <input type="file" id="file-input" accept="image/*" />
       </section>
 
-      <section class="image-preview-section hidden" id="preview-section">
-        <div class="preview-header">
+      <!-- Analysis Section -->
+      <section class="analysis-section hidden" id="analysis-section">
+        <div class="file-header">
+          <img id="file-thumb" class="file-thumb" alt="Preview" />
           <div class="file-info">
-            <div>
-              <div class="file-name" id="file-name">image.jpg</div>
-              <div class="file-dims" id="original-dims">2000 × 1500 px</div>
-            </div>
+            <span id="file-name" class="file-name">image.jpg</span>
+            <span id="file-size" class="file-size">2.4 MB</span>
           </div>
-          <button class="btn-text-danger" id="btn-remove">
-            Remove & Start Over
+          <button class="btn-remove" id="btn-remove">Remove</button>
+        </div>
+
+        <!-- Alert -->
+        <div id="alert-container"></div>
+
+        <!-- Metadata Display -->
+        <div class="metadata-section" id="metadata-display">
+          <h3>📊 Metadata Found:</h3>
+          <div class="metadata-grid" id="metadata-grid"></div>
+        </div>
+
+        <div class="action-area">
+          <button class="btn-primary" id="btn-clean">
+            🧹 Strip All Metadata & Download
           </button>
         </div>
-
-        <div class="preview-image-container">
-          <img id="preview-image" alt="Uploaded image preview" />
-        </div>
       </section>
 
-      <section class="controls hidden" id="controls">
-        <h3 class="controls-title">Choose Output Size</h3>
+      <!-- Success Section -->
+      <section class="success-section hidden" id="success-section">
+        <div class="success-icon">✅</div>
+        <h2>Image Cleaned Successfully!</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1rem">
+          Your photo is now safe to share
+        </p>
 
-        <div class="control-group">
-          <label>Quick Presets:</label>
-          <select id="preset-select">
-            <option value="custom">Custom Dimensions</option>
-            <optgroup label="Instagram">
-              <option value="1080x1080">Instagram Square (1080×1080)</option>
-              <option value="1080x1350">Instagram Portrait (1080×1350)</option>
-              <option value="1080x1920">Instagram Story (1080×1920)</option>
-            </optgroup>
-            <optgroup label="YouTube">
-              <option value="1280x720">Thumbnail (1280×720)</option>
-              <option value="2560x1440">Channel Art (2560×1440)</option>
-            </optgroup>
-            <optgroup label="Twitter / X">
-              <option value="1500x500">Header (1500×500)</option>
-              <option value="1600x900">Post (1600×900)</option>
-            </optgroup>
-            <optgroup label="Facebook">
-              <option value="1200x630">Post (1200×630)</option>
-              <option value="820x312">Cover Photo (820×312)</option>
-            </optgroup>
-          </select>
-        </div>
-
-        <div class="dimensions-grid">
-          <div class="input-wrapper">
-            <label>Width (px)</label>
-            <input type="number" id="input-width" placeholder="Width" />
+        <div class="comparison-grid">
+          <div class="comparison-card">
+            <h4>Before Cleaning</h4>
+            <div class="stat-item">
+              <span class="stat-label">File Size:</span>
+              <span class="stat-value" id="before-size">-</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Metadata Items:</span>
+              <span class="stat-value" id="before-metadata">-</span>
+            </div>
           </div>
-
-          <div class="lock-wrapper">
-            <button
-              id="btn-lock"
-              class="btn-lock active"
-              title="Lock Aspect Ratio"
-            >
-              🔒
-            </button>
-          </div>
-
-          <div class="input-wrapper">
-            <label>Height (px)</label>
-            <input type="number" id="input-height" placeholder="Height" />
-          </div>
-        </div>
-      </section>
-
-      <section class="crop-editor hidden" id="crop-editor">
-        <div class="editor-header">
-          <h3>Position Your Image</h3>
-          <div class="fit-toggle">
-            <button class="fit-btn active" data-mode="cover">Fill Frame</button>
-            <button class="fit-btn" data-mode="contain">Fit Inside</button>
+          <div class="comparison-card">
+            <h4>After Cleaning</h4>
+            <div class="stat-item">
+              <span class="stat-label">File Size:</span>
+              <span class="stat-value" id="after-size">-</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Metadata Items:</span>
+              <span class="stat-value" style="color: var(--success-color)"
+                >0</span
+              >
+            </div>
           </div>
         </div>
 
-        <div class="transform-controls">
-          <div class="transform-group">
-            <span class="transform-label">Rotate:</span>
-            <button
-              class="transform-btn"
-              id="rotate-left"
-              title="Rotate 90° Left"
-            >
-              ↶
-            </button>
-            <button
-              class="transform-btn"
-              id="rotate-right"
-              title="Rotate 90° Right"
-            >
-              ↷
-            </button>
-          </div>
-          <div class="transform-group">
-            <span class="transform-label">Flip:</span>
-            <button
-              class="transform-btn"
-              id="flip-horizontal"
-              title="Flip Horizontal"
-            >
-              ↔
-            </button>
-            <button
-              class="transform-btn"
-              id="flip-vertical"
-              title="Flip Vertical"
-            >
-              ↕
-            </button>
-          </div>
-        </div>
-
-        <div class="crop-canvas-container" id="canvas-container">
-          <canvas id="crop-canvas"></canvas>
-          <div class="crop-overlay">
-            <div class="crop-corners corner-tl"></div>
-            <div class="crop-corners corner-tr"></div>
-            <div class="crop-corners corner-bl"></div>
-            <div class="crop-corners corner-br"></div>
-          </div>
-        </div>
-
-        <div class="zoom-controls">
-          <button class="zoom-btn" id="zoom-out">−</button>
-          <input
-            type="range"
-            id="zoom-slider"
-            class="zoom-slider"
-            min="50"
-            max="200"
-            value="100"
-          />
-          <button class="zoom-btn" id="zoom-in">+</button>
-        </div>
-
-        <div class="crop-info">
-          <strong>💡 Drag to reposition • Scroll to zoom</strong><br />
-          Final output: <span id="output-dims">-</span>
-        </div>
-      </section>
-
-      <div class="action-area hidden" id="action-area">
-        <button class="btn-download" id="btn-resize">
-          Download Resized Image
+        <button class="btn-secondary" id="btn-restart">
+          Clean Another Image
         </button>
-      </div>
+      </section>
     </main>
 
-    <article class="seo-content">
-      <h2>Why use SizeDiet Resizer?</h2>
-      <p>
-        SizeDiet gives you professional control over your images directly in the
-        browser. Unlike basic resizers, SizeDiet lets you crop, position,
-        rotate, and scale your image to fit perfectly into specific social media
-        dimensions.
-      </p>
-
-      <h3>Key Features</h3>
-      <ul>
-        <li>
-          <strong>Smart Presets:</strong> One-click resizing for Instagram,
-          YouTube, Twitter, and more.
-        </li>
-        <li>
-          <strong>Composition Control:</strong> "Fill Frame" or "Fit Inside"
-          modes ensure no important details are cut off.
-        </li>
-        <li>
-          <strong>Transformation Tools:</strong> Rotate and flip images to
-          correct orientation before saving.
-        </li>
-        <li>
-          <strong>Privacy First:</strong> All processing happens on your device.
-          No uploads.
-        </li>
-      </ul>
-
-      <h3>Frequently Asked Questions</h3>
-      <div class="faq-item">
-        <span class="faq-question">What is "Fill Frame" vs "Fit Inside"?</span>
-        <p>
-          <strong>Fill Frame</strong> zooms the image to cover the entire output
-          area (good for aesthetic posts). <strong>Fit Inside</strong> ensures
-          the whole image is visible with white space around it (good for
-          diagrams or screenshots).
-        </p>
-      </div>
-      <div class="faq-item">
-        <span class="faq-question">Will my image quality decrease?</span>
-        <p>
-          We use high-quality image smoothing algorithms when resizing to keep
-          your images looking crisp, even when scaling down significantly.
-        </p>
-      </div>
-    </article>
-
-    <footer>
-      <p>&copy; 2025 PhotoDiet. 100% Client-Side & Secure.</p>
-      <p class="dev-credit">
-        Built by
-        <a href="https://shreejamanandhar.com.np" target="_blank" rel="noopener"
-          >Shreeja Manandhar</a
-        >
-      </p>
-    </footer>
-
     <script>
-      const els = {
-        dropZone: document.getElementById("drop-zone"),
-        fileInput: document.getElementById("file-input"),
-        uploadContent: document.getElementById("upload-content"),
-        previewSection: document.getElementById("preview-section"),
-        previewImage: document.getElementById("preview-image"),
-        fileName: document.getElementById("file-name"),
-        originalDims: document.getElementById("original-dims"),
-        btnRemove: document.getElementById("btn-remove"),
-        controls: document.getElementById("controls"),
-        presetSelect: document.getElementById("preset-select"),
-        inputWidth: document.getElementById("input-width"),
-        inputHeight: document.getElementById("input-height"),
-        btnLock: document.getElementById("btn-lock"),
-        cropEditor: document.getElementById("crop-editor"),
-        cropCanvas: document.getElementById("crop-canvas"),
-        canvasContainer: document.getElementById("canvas-container"),
-        zoomSlider: document.getElementById("zoom-slider"),
-        zoomIn: document.getElementById("zoom-in"),
-        zoomOut: document.getElementById("zoom-out"),
-        actionArea: document.getElementById("action-area"),
-        btnResize: document.getElementById("btn-resize"),
-        outputDims: document.getElementById("output-dims"),
-        rotateLeft: document.getElementById("rotate-left"),
-        rotateRight: document.getElementById("rotate-right"),
-        flipHorizontal: document.getElementById("flip-horizontal"),
-        flipVertical: document.getElementById("flip-vertical"),
+      const state = {
+        file: null,
+        exifData: null,
+        metadataCount: 0,
+        originalSize: 0,
       };
 
-      let state = {
-        file: null,
-        imageBitmap: null,
-        originalWidth: 0,
-        originalHeight: 0,
-        aspectRatio: 0,
-        isLocked: true,
-        targetWidth: 0,
-        targetHeight: 0,
-        offsetX: 0,
-        offsetY: 0,
-        scale: 1,
-        isDragging: false,
-        lastX: 0,
-        lastY: 0,
-        fitMode: "cover",
-        rotation: 0,
-        flipH: false,
-        flipV: false,
+      const els = {
+        uploadZone: document.getElementById("upload-zone"),
+        fileInput: document.getElementById("file-input"),
+        analysisSection: document.getElementById("analysis-section"),
+        successSection: document.getElementById("success-section"),
+        fileThumb: document.getElementById("file-thumb"),
+        fileName: document.getElementById("file-name"),
+        fileSize: document.getElementById("file-size"),
+        btnRemove: document.getElementById("btn-remove"),
+        btnClean: document.getElementById("btn-clean"),
+        btnRestart: document.getElementById("btn-restart"),
+        alertContainer: document.getElementById("alert-container"),
+        metadataGrid: document.getElementById("metadata-grid"),
+        beforeSize: document.getElementById("before-size"),
+        beforeMetadata: document.getElementById("before-metadata"),
+        afterSize: document.getElementById("after-size"),
       };
 
       // Upload handlers
-      els.dropZone.addEventListener("click", () => els.fileInput.click());
+      els.uploadZone.addEventListener("click", () => els.fileInput.click());
 
       ["dragenter", "dragover"].forEach((e) => {
-        els.dropZone.addEventListener(e, (evt) => {
+        els.uploadZone.addEventListener(e, (evt) => {
           evt.preventDefault();
-          els.dropZone.classList.add("drag-active");
+          els.uploadZone.style.borderColor = "var(--accent-color)";
         });
       });
 
       ["dragleave", "drop"].forEach((e) => {
-        els.dropZone.addEventListener(e, (evt) => {
+        els.uploadZone.addEventListener(e, (evt) => {
           evt.preventDefault();
-          els.dropZone.classList.remove("drag-active");
+          els.uploadZone.style.borderColor = "var(--border-color)";
         });
       });
 
-      els.dropZone.addEventListener("drop", (e) => {
-        e.preventDefault();
+      els.uploadZone.addEventListener("drop", (e) => {
         if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
       });
 
@@ -860,6 +524,8 @@
       });
 
       els.btnRemove.addEventListener("click", resetUI);
+      els.btnRestart.addEventListener("click", resetUI);
+      els.btnClean.addEventListener("click", cleanMetadata);
 
       async function handleFile(file) {
         if (!file.type.startsWith("image/")) {
@@ -868,447 +534,253 @@
         }
 
         state.file = file;
+        state.originalSize = file.size;
 
-        // Create bitmap for processing
-        const bitmap = await createImageBitmap(file);
-        state.imageBitmap = bitmap;
-        state.originalWidth = bitmap.width;
-        state.originalHeight = bitmap.height;
-        state.aspectRatio = state.originalWidth / state.originalHeight;
-
-        // Show preview immediately
+        // Show preview
         const url = URL.createObjectURL(file);
-        els.previewImage.src = url;
+        els.fileThumb.src = url;
         els.fileName.textContent = file.name;
-        els.originalDims.textContent = `${state.originalWidth} × ${state.originalHeight} px`;
+        els.fileSize.textContent = formatSize(file.size);
 
-        // Set default dimensions to original size
-        els.inputWidth.value = state.originalWidth;
-        els.inputHeight.value = state.originalHeight;
-        els.presetSelect.value = "custom";
+        // Show analysis section
+        els.uploadZone.classList.add("hidden");
+        els.analysisSection.classList.remove("hidden");
+        els.successSection.classList.add("hidden");
 
-        // Show UI sections
-        els.dropZone.classList.add("hidden");
-        els.previewSection.classList.remove("hidden");
-        els.controls.classList.remove("hidden");
-
-        // Trigger initial crop update
-        updateCropEditor();
+        // Scan for EXIF
+        await scanExif(file);
       }
 
-      // Dimension controls
-      els.btnLock.addEventListener("click", () => {
-        state.isLocked = !state.isLocked;
-        els.btnLock.classList.toggle("active");
-        els.btnLock.textContent = state.isLocked ? "🔒" : "🔓";
-
-        if (state.isLocked && els.inputWidth.value) {
-          els.inputHeight.value = Math.round(
-            els.inputWidth.value / state.aspectRatio,
-          );
-          updateCropEditor();
-        }
-      });
-
-      els.inputWidth.addEventListener("input", () => {
-        els.presetSelect.value = "custom";
-        if (state.isLocked && els.inputWidth.value) {
-          els.inputHeight.value = Math.round(
-            els.inputWidth.value / state.aspectRatio,
-          );
-        }
-        updateCropEditor();
-      });
-
-      els.inputHeight.addEventListener("input", () => {
-        els.presetSelect.value = "custom";
-        if (state.isLocked && els.inputHeight.value) {
-          els.inputWidth.value = Math.round(
-            els.inputHeight.value * state.aspectRatio,
-          );
-        }
-        updateCropEditor();
-      });
-
-      els.presetSelect.addEventListener("change", () => {
-        const val = els.presetSelect.value;
-        if (val === "custom") return;
-
-        const [w, h] = val.split("x").map(Number);
-        els.inputWidth.value = w;
-        els.inputHeight.value = h;
-        updateCropEditor();
-      });
-
-      function updateCropEditor() {
-        const w = parseInt(els.inputWidth.value);
-        const h = parseInt(els.inputHeight.value);
-
-        if (!w || !h || !state.imageBitmap) return;
-
-        state.targetWidth = w;
-        state.targetHeight = h;
-
-        els.cropEditor.classList.remove("hidden");
-        els.actionArea.classList.remove("hidden");
-        els.outputDims.textContent = `${w} × ${h} px`;
-
-        initCropCanvas();
-      }
-
-      function initCropCanvas() {
-        const container = els.canvasContainer;
-        const maxWidth = Math.min(600, container.clientWidth);
-        const targetAspect = state.targetWidth / state.targetHeight;
-
-        // Calculate canvas display size
-        const canvasWidth = maxWidth;
-        const canvasHeight = canvasWidth / targetAspect;
-
-        // Set actual canvas resolution (match display size for interaction speed)
-        els.cropCanvas.width = canvasWidth;
-        els.cropCanvas.height = canvasHeight;
-
-        // CSS size
-        els.cropCanvas.style.width = canvasWidth + "px";
-        els.cropCanvas.style.height = canvasHeight + "px";
-
-        // Reset transforms
-        state.scale = 1;
-        state.offsetX = 0;
-        state.offsetY = 0;
-        els.zoomSlider.value = 100;
-
-        applyFitMode();
-        drawCropPreview();
-      }
-
-      function applyFitMode() {
-        const canvasAspect = els.cropCanvas.width / els.cropCanvas.height;
-        // Adjust image aspect based on rotation (if 90 or 270 degrees, swap dimensions)
-        const isRotated = state.rotation === 90 || state.rotation === 270;
-        const effectiveImgWidth = isRotated
-          ? state.originalHeight
-          : state.originalWidth;
-        const effectiveImgHeight = isRotated
-          ? state.originalWidth
-          : state.originalHeight;
-        const imageAspect = effectiveImgWidth / effectiveImgHeight;
-
-        if (state.fitMode === "cover") {
-          if (imageAspect > canvasAspect) {
-            state.scale = els.cropCanvas.height / effectiveImgHeight;
-          } else {
-            state.scale = els.cropCanvas.width / effectiveImgWidth;
-          }
-        } else {
-          // contain
-          if (imageAspect > canvasAspect) {
-            state.scale = els.cropCanvas.width / effectiveImgWidth;
-          } else {
-            state.scale = els.cropCanvas.height / effectiveImgHeight;
-          }
-        }
-
-        // Center logic depends on rotation, so we calculate offsets during draw or reset here
-        // Simple center reset:
-        state.offsetX = 0;
-        state.offsetY = 0;
-
-        els.zoomSlider.value = 100;
-      }
-
-      document.querySelectorAll(".fit-btn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          document
-            .querySelectorAll(".fit-btn")
-            .forEach((b) => b.classList.remove("active"));
-          btn.classList.add("active");
-          state.fitMode = btn.dataset.mode;
-          applyFitMode();
-          drawCropPreview();
+      function scanExif(file) {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const img = new Image();
+            img.onload = function () {
+              EXIF.getData(img, function () {
+                state.exifData = EXIF.getAllTags(this);
+                displayMetadata();
+                resolve();
+              });
+            };
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
         });
-      });
-
-      // Transform controls
-      els.rotateLeft.addEventListener("click", () => {
-        state.rotation = (state.rotation - 90 + 360) % 360;
-        applyFitMode(); // Recalculate fit for new orientation
-        drawCropPreview();
-      });
-
-      els.rotateRight.addEventListener("click", () => {
-        state.rotation = (state.rotation + 90) % 360;
-        applyFitMode();
-        drawCropPreview();
-      });
-
-      els.flipHorizontal.addEventListener("click", () => {
-        state.flipH = !state.flipH;
-        drawCropPreview();
-      });
-
-      els.flipVertical.addEventListener("click", () => {
-        state.flipV = !state.flipV;
-        drawCropPreview();
-      });
-
-      function drawCropPreview() {
-        const ctx = els.cropCanvas.getContext("2d");
-        ctx.clearRect(0, 0, els.cropCanvas.width, els.cropCanvas.height);
-
-        // Draw background
-        ctx.fillStyle = "#f0f0f0";
-        ctx.fillRect(0, 0, els.cropCanvas.width, els.cropCanvas.height);
-
-        ctx.save();
-
-        // 1. Move to Center of Canvas + Offset
-        ctx.translate(
-          els.cropCanvas.width / 2 + state.offsetX,
-          els.cropCanvas.height / 2 + state.offsetY,
-        );
-
-        // 2. Rotate
-        ctx.rotate((state.rotation * Math.PI) / 180);
-
-        // 3. Scale
-        ctx.scale(
-          state.scale * (state.flipH ? -1 : 1),
-          state.scale * (state.flipV ? -1 : 1),
-        );
-
-        // 4. Draw Image Centered
-        ctx.drawImage(
-          state.imageBitmap,
-          -state.originalWidth / 2,
-          -state.originalHeight / 2,
-        );
-
-        ctx.restore();
       }
 
-      // Zoom controls
-      els.zoomSlider.addEventListener("input", (e) => {
-        const zoom = e.target.value / 100;
-        // We want 100 on slider to be the "Fit" scale calculated in applyFitMode
-        // So we just re-run applyFitMode logic but modify the multiplier?
-        // Simpler: Just modify scale relative to current fit
-        // For simplicity in this demo, let's just scale relative to base fit is hard without storing base.
-        // Let's just adjust scale directly.
+      function displayMetadata() {
+        const data = state.exifData;
+        const keys = Object.keys(data);
 
-        // Re-calc base scale for reference
-        const canvasAspect = els.cropCanvas.width / els.cropCanvas.height;
-        const isRotated = state.rotation === 90 || state.rotation === 270;
-        const effectiveImgWidth = isRotated
-          ? state.originalHeight
-          : state.originalWidth;
-        const effectiveImgHeight = isRotated
-          ? state.originalWidth
-          : state.originalHeight;
-        const imageAspect = effectiveImgWidth / effectiveImgHeight;
+        state.metadataCount = keys.length;
 
-        let baseScale;
-        if (state.fitMode === "cover") {
-          baseScale =
-            imageAspect > canvasAspect
-              ? els.cropCanvas.height / effectiveImgHeight
-              : els.cropCanvas.width / effectiveImgWidth;
+        // Check for sensitive data
+        const hasGPS = data.GPSLatitude || data.GPSLongitude;
+        const hasLocation = hasGPS || data.GPSAltitude;
+
+        // Show alert
+        if (keys.length === 0) {
+          showAlert(
+            "success",
+            "No Metadata Found",
+            "This image appears to be clean already. You can still re-process it to be sure.",
+          );
+        } else if (hasLocation) {
+          showAlert(
+            "danger",
+            "⚠️ Location Data Exposed!",
+            `This image contains GPS coordinates that reveal exactly where it was taken. ${keys.length} metadata items found.`,
+          );
         } else {
-          baseScale =
-            imageAspect > canvasAspect
-              ? els.cropCanvas.width / effectiveImgWidth
-              : els.cropCanvas.height / effectiveImgHeight;
+          showAlert(
+            "warning",
+            "Metadata Detected",
+            `Found ${keys.length} hidden data items in this image. They reveal camera settings and potentially identifiable information.`,
+          );
         }
 
-        state.scale = baseScale * zoom;
-        drawCropPreview();
-      });
+        // Display metadata items
+        els.metadataGrid.innerHTML = "";
 
-      els.zoomIn.addEventListener("click", () => {
-        els.zoomSlider.value = Math.min(
-          200,
-          parseInt(els.zoomSlider.value) + 10,
-        );
-        els.zoomSlider.dispatchEvent(new Event("input"));
-      });
+        if (keys.length === 0) {
+          els.metadataGrid.innerHTML =
+            '<p style="color: var(--text-secondary); grid-column: 1/-1;">No EXIF metadata detected in this image.</p>';
+          return;
+        }
 
-      els.zoomOut.addEventListener("click", () => {
-        els.zoomSlider.value = Math.max(
-          50,
-          parseInt(els.zoomSlider.value) - 10,
-        );
-        els.zoomSlider.dispatchEvent(new Event("input"));
-      });
+        // Sensitive fields
+        const sensitiveFields = [
+          "GPSLatitude",
+          "GPSLongitude",
+          "GPSAltitude",
+          "GPSTimeStamp",
+          "GPSDateStamp",
+        ];
+        const importantFields = [
+          "Make",
+          "Model",
+          "DateTime",
+          "DateTimeOriginal",
+          "Software",
+          "Artist",
+          "Copyright",
+        ];
 
-      // Pan/drag
-      els.cropCanvas.addEventListener("mousedown", startDrag);
-      els.cropCanvas.addEventListener("touchstart", startDrag);
+        // Show important/sensitive fields first
+        const priorityFields = [...sensitiveFields, ...importantFields];
+        const displayFields = keys.filter((k) => priorityFields.includes(k));
+        const otherFields = keys.filter((k) => !priorityFields.includes(k));
 
-      function startDrag(e) {
-        state.isDragging = true;
-        const pos = getEventPos(e);
-        state.lastX = pos.x;
-        state.lastY = pos.y;
+        // Display priority fields
+        displayFields.forEach((key) => {
+          const isSensitive = sensitiveFields.includes(key);
+          addMetadataItem(key, data[key], isSensitive);
+        });
 
-        document.addEventListener("mousemove", drag);
-        document.addEventListener("mouseup", stopDrag);
-        document.addEventListener("touchmove", drag);
-        document.addEventListener("touchend", stopDrag);
+        // Show count of other fields
+        if (otherFields.length > 0) {
+          const item = document.createElement("div");
+          item.className = "metadata-item";
+          item.innerHTML = `
+          <span class="metadata-label">Other Metadata</span>
+          <span class="metadata-value">${otherFields.length} additional fields</span>
+        `;
+          els.metadataGrid.appendChild(item);
+        }
       }
 
-      function drag(e) {
-        if (!state.isDragging) return;
-        e.preventDefault(); // prevent scroll on touch
+      function addMetadataItem(key, value, isSensitive = false) {
+        const item = document.createElement("div");
+        item.className = "metadata-item" + (isSensitive ? " sensitive" : "");
 
-        const pos = getEventPos(e);
-        const dx = pos.x - state.lastX;
-        const dy = pos.y - state.lastY;
+        let displayValue = value;
+        if (typeof value === "object") {
+          displayValue = JSON.stringify(value);
+        }
+        if (displayValue.length > 50) {
+          displayValue = displayValue.substring(0, 50) + "...";
+        }
 
-        state.offsetX += dx;
-        state.offsetY += dy;
-        state.lastX = pos.x;
-        state.lastY = pos.y;
+        item.innerHTML = `
+        <span class="metadata-label">
+          ${formatLabel(key)}
+          ${isSensitive ? '<span class="sensitive-badge">SENSITIVE</span>' : ""}
+        </span>
+        <span class="metadata-value">${displayValue}</span>
+      `;
 
-        drawCropPreview();
+        els.metadataGrid.appendChild(item);
       }
 
-      function stopDrag() {
-        state.isDragging = false;
-        document.removeEventListener("mousemove", drag);
-        document.removeEventListener("mouseup", stopDrag);
-        document.removeEventListener("touchmove", drag);
-        document.removeEventListener("touchend", stopDrag);
+      function formatLabel(key) {
+        // Convert camelCase to readable text
+        return key.replace(/([A-Z])/g, " $1").trim();
       }
 
-      function getEventPos(e) {
-        const rect = els.cropCanvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return {
-          x: clientX - rect.left,
-          y: clientY - rect.top,
-        };
+      function showAlert(type, title, message) {
+        els.alertContainer.innerHTML = `
+        <div class="alert-box ${type}">
+          <div class="alert-icon">${type === "danger" ? "🚨" : type === "warning" ? "⚠️" : "✅"}</div>
+          <div class="alert-content">
+            <div class="alert-title">${title}</div>
+            <div>${message}</div>
+          </div>
+        </div>
+      `;
       }
 
-      // Download
-      els.btnResize.addEventListener("click", async () => {
+      async function cleanMetadata() {
         if (!state.file) return;
 
-        els.btnResize.textContent = "Processing...";
-        els.btnResize.disabled = true;
+        els.btnClean.innerHTML = '<span class="spinner"></span> Cleaning...';
+        els.btnClean.disabled = true;
 
         try {
-          const outputCanvas = document.createElement("canvas");
-          outputCanvas.width = state.targetWidth;
-          outputCanvas.height = state.targetHeight;
-          const ctx = outputCanvas.getContext("2d");
+          // Create bitmap (strips all metadata)
+          const bitmap = await createImageBitmap(state.file);
 
-          // Fill background (white for JPGs/fitting)
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(0, 0, state.targetWidth, state.targetHeight);
+          // Draw to canvas
+          const canvas = document.createElement("canvas");
+          canvas.width = bitmap.width;
+          canvas.height = bitmap.height;
+          const ctx = canvas.getContext("2d");
 
-          ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = "high";
+          // White background for JPEGs
+          if (state.file.type === "image/jpeg") {
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+          }
 
-          // Mapping Factor: Output Size / Preview Canvas Size
-          const scaleMapX = state.targetWidth / els.cropCanvas.width;
-          const scaleMapY = state.targetHeight / els.cropCanvas.height;
+          ctx.drawImage(bitmap, 0, 0);
 
-          ctx.save();
+          // Export with appropriate quality
+          const quality = state.file.type === "image/jpeg" ? 0.95 : 1.0;
 
-          // 1. Center
-          ctx.translate(
-            (els.cropCanvas.width / 2 + state.offsetX) * scaleMapX,
-            (els.cropCanvas.height / 2 + state.offsetY) * scaleMapY,
-          );
-
-          // 2. Rotate
-          ctx.rotate((state.rotation * Math.PI) / 180);
-
-          // 3. Scale (Combined: Image Scale * Output Mapping * Flip)
-          // We use scaleMapX for both axes to maintain aspect ratio of the image itself
-          // BUT we need to account for the canvas aspect ratio difference?
-          // Actually, since we draw the preview onto a canvas that represents the Target Aspect Ratio,
-          // the scaleMapX and scaleMapY should be identical!
-
-          const finalScale = state.scale * scaleMapX; // scaleMapX == scaleMapY theoretically
-
-          ctx.scale(
-            finalScale * (state.flipH ? -1 : 1),
-            finalScale * (state.flipV ? -1 : 1),
-          );
-
-          // 4. Draw
-          ctx.drawImage(
-            state.imageBitmap,
-            -state.originalWidth / 2,
-            -state.originalHeight / 2,
-          );
-
-          ctx.restore();
-
-          outputCanvas.toBlob(
+          canvas.toBlob(
             (blob) => {
-              const link = document.createElement("a");
-              link.href = URL.createObjectURL(blob);
-
-              const ext = state.file.type.split("/")[1];
-              const baseName = state.file.name.replace(/\.[^.]+$/, "");
-              const dimStr = `${state.targetWidth}x${state.targetHeight}`;
-              link.download = `${baseName}-${dimStr}.${ext}`;
-
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-
-              els.btnResize.textContent = "Download Resized Image";
-              els.btnResize.disabled = false;
+              downloadFile(blob);
+              showSuccess(blob.size);
             },
             state.file.type,
-            0.95,
+            quality,
           );
         } catch (err) {
           console.error(err);
           alert("Error processing image");
-          els.btnResize.textContent = "Download Resized Image";
-          els.btnResize.disabled = false;
+          els.btnClean.textContent = "🧹 Strip All Metadata & Download";
+          els.btnClean.disabled = false;
         }
-      });
+      }
+
+      function downloadFile(blob) {
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+
+        const nameParts = state.file.name.split(".");
+        const ext = nameParts.pop();
+        const base = nameParts.join(".");
+
+        link.download = `${base}-clean.${ext}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      function showSuccess(cleanedSize) {
+        els.beforeSize.textContent = formatSize(state.originalSize);
+        els.beforeMetadata.textContent = state.metadataCount;
+        els.afterSize.textContent = formatSize(cleanedSize);
+
+        els.analysisSection.classList.add("hidden");
+        els.successSection.classList.remove("hidden");
+      }
+
+      function formatSize(bytes) {
+        if (bytes === 0) return "0 Bytes";
+        const k = 1024;
+        const sizes = ["Bytes", "KB", "MB"];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+      }
 
       function resetUI() {
-        if (els.previewImage.src) {
-          URL.revokeObjectURL(els.previewImage.src);
-        }
+        if (els.fileThumb.src) URL.revokeObjectURL(els.fileThumb.src);
 
-        // Reset state
-        state = {
-          file: null,
-          imageBitmap: null,
-          originalWidth: 0,
-          originalHeight: 0,
-          aspectRatio: 0,
-          isLocked: true,
-          targetWidth: 0,
-          targetHeight: 0,
-          offsetX: 0,
-          offsetY: 0,
-          scale: 1,
-          isDragging: false,
-          lastX: 0,
-          lastY: 0,
-          fitMode: "cover",
-          rotation: 0,
-          flipH: false,
-          flipV: false,
-        };
+        state.file = null;
+        state.exifData = null;
+        state.metadataCount = 0;
+        state.originalSize = 0;
 
         els.fileInput.value = "";
-        els.dropZone.classList.remove("hidden");
-        els.previewSection.classList.add("hidden");
-        els.controls.classList.add("hidden");
-        els.cropEditor.classList.add("hidden");
-        els.actionArea.classList.add("hidden");
+        els.uploadZone.classList.remove("hidden");
+        els.analysisSection.classList.add("hidden");
+        els.successSection.classList.add("hidden");
+        els.metadataGrid.innerHTML = "";
+        els.alertContainer.innerHTML = "";
+
+        els.btnClean.innerHTML = "🧹 Strip All Metadata & Download";
+        els.btnClean.disabled = false;
       }
     </script>
   </body>
