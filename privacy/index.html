@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>BlurDiet | Free Image Redactor & Face Blur</title>
+    <meta
+      name="description"
+      content="Redact sensitive information from screenshots. Auto-blur faces, pixelate text, or hide private details securely in your browser."
+    />
+    <meta
+      name="keywords"
+      content="blur image, face blur, redact screenshot, pixelate image, privacy tool, hide text online"
+    />
+    <link rel="canonical" href="https://photodiet.netlify.app/privacy/" />
+
+    <link rel="icon" href="../public/icon/Icon_white.png" type="image/png" />
+
+    <link rel="stylesheet" href="style.css" />
+
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.min.js"
+    ></script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "BlurDiet",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Web Browser",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "description": "Browser-based privacy tool to blur, pixelate, or blackout sensitive areas with AI face detection.",
+        "featureList": "AI Face Blur, Text redaction, Pixelation, Blackout mode"
+      }
+    </script>
+  </head>
+  <body>
+    <header>
+      <a href="/" class="back-link">← Back to Tools</a>
+      <img
+        src="../public/icon/IconText_white.png"
+        alt="PhotoDiet"
+        class="main-logo"
+      />
+      <div class="tool-name">BlurDiet (Redactor)</div>
+      <p class="subtitle">
+        Blur faces, pixelate text, and hide sensitive details.
+      </p>
+    </header>
+
+    <main>
+      <section class="upload-zone" id="upload-zone">
+        <div id="upload-content">
+          <div class="upload-icon">👁️</div>
+          <h3>Drag & Drop Image</h3>
+          <p class="upload-hint">
+            Upload a screenshot or photo to start redacting
+          </p>
+        </div>
+        <input type="file" id="file-input" accept="image/*" />
+      </section>
+
+      <section class="editor-container hidden" id="editor-container">
+        <div class="toolbar">
+          <div class="toolbar-section">
+            <div class="tool-group">
+              <button class="tool-btn active" data-mode="blur" title="Blur">
+                💧 Blur
+              </button>
+              <button class="tool-btn" data-mode="pixelate" title="Pixelate">
+                👾 Pixelate
+              </button>
+              <button class="tool-btn" data-mode="solid" title="Blackout">
+                ⬛ Cover
+              </button>
+            </div>
+
+            <div class="tool-group">
+              <button
+                class="tool-btn active"
+                data-draw="rect"
+                title="Rectangle Tool"
+              >
+                ▢ Box
+              </button>
+              <button class="tool-btn" data-draw="brush" title="Brush Tool">
+                🖌️ Brush
+              </button>
+            </div>
+
+            <div class="size-group">
+              <span class="size-label">Size:</span>
+              <button class="size-btn" data-size="small">S</button>
+              <button class="size-btn active" data-size="medium">M</button>
+              <button class="size-btn" data-size="large">L</button>
+            </div>
+          </div>
+
+          <div class="toolbar-section">
+            <button class="btn-ai" id="btn-auto-face" disabled>
+              ✨ Auto-Blur Faces
+            </button>
+            <button class="action-btn" id="btn-undo" disabled>↩ Undo</button>
+            <button class="action-btn danger" id="btn-clear">Clear</button>
+          </div>
+        </div>
+
+        <div class="canvas-wrapper" id="canvas-wrapper">
+          <canvas id="editor-canvas"></canvas>
+
+          <div class="loading-overlay hidden" id="loading-overlay">
+            <div class="spinner"></div>
+            <div>Detecting faces...</div>
+          </div>
+        </div>
+
+        <div class="controls-section">
+          <button class="toggle-btn active" id="btn-toggle-preview">
+            👁️ Show Edits
+          </button>
+          <p class="usage-hint">
+            👇 Click and drag on the image to hide details
+          </p>
+        </div>
+
+        <div class="action-area">
+          <button class="btn-download" id="btn-download">
+            Download Safe Image
+          </button>
+          <button class="btn-secondary" id="btn-new">Open New Image</button>
+        </div>
+      </section>
+    </main>
+
+    <article class="seo-content">
+      <h2>Protect your privacy before sharing.</h2>
+      <p>
+        Sharing screenshots or photos online can accidentally reveal sensitive
+        data like
+        <strong
+          >passwords, addresses, credit card numbers, or children's
+          faces</strong
+        >. BlurDiet allows you to selectively hide these details instantly.
+      </p>
+
+      [Image of face recognition technology]
+
+      <h3>Redaction Modes</h3>
+      <ul>
+        <li>
+          <strong>✨ Auto-Face Blur:</strong> Uses AI to automatically detect
+          and blur all faces in the photo instantly.
+        </li>
+        <li>
+          <strong>💧 Blur:</strong> Softens details. Best for hiding background
+          clutter while keeping the image looking natural.
+        </li>
+        <li>
+          <strong>👾 Pixelate:</strong> The classic "Censored" look. Best for
+          hiding text, numbers, or license plates.
+        </li>
+        <li>
+          <strong>⬛ Blackout:</strong> Draws a solid black box. Use this for
+          maximum security when hiding highly sensitive data like passwords.
+        </li>
+      </ul>
+
+      <h3>Security Promise</h3>
+      <div class="faq-item">
+        <span class="faq-question">Can the blur be reversed?</span>
+        <p>
+          No. Once you download the image, the blurred pixels are "baked in."
+          The original data underneath is destroyed and replaced by the blur
+          effect.
+        </p>
+      </div>
+      <div class="faq-item">
+        <span class="faq-question">Where is the image processed?</span>
+        <p>
+          100% in your browser. We never upload your sensitive screenshots to
+          any server.
+        </p>
+      </div>
+    </article>
+
+    <footer>
+      <p>&copy; 2025 PhotoDiet. 100% Client-Side & Secure.</p>
+      <p class="dev-credit">
+        Built by
+        <a href="https://shreejamanandhar.com.np" target="_blank" rel="noopener"
+          >Shreeja Manandhar</a
+        >
+      </p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
