@@ -21,22 +21,13 @@
     <link rel="icon" href="../public/icon/Icon_white.png" type="image/png" />
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
     <link rel="stylesheet" href="style.css" />
-
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "DataDiet",
-        "applicationCategory": "MultimediaApplication",
-        "operatingSystem": "Web Browser",
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-        "description": "Browser-based tool to strip EXIF, GPS, and metadata from images for privacy.",
-        "featureList": "GPS removal, Camera data scrubbing, Client-side processing",
-        "screenshot": "https://photodiet.netlify.app/public/icon/IconText_white.png"
-      }
-    </script>
   </head>
   <body>
     <header>
@@ -75,6 +66,33 @@
         </div>
 
         <div id="alert-container"></div>
+
+        <div class="gps-map-section hidden" id="gps-map-section">
+          <div class="gps-map-header">
+            <span style="font-size: 2rem">📍</span>
+            <h3>Your Exact Location is Exposed!</h3>
+          </div>
+
+          <div class="gps-coords" id="gps-coords"></div>
+
+          <div class="gps-address" id="gps-address">
+            <div class="gps-address-title">Approximate Address Found:</div>
+            <div class="gps-address-text address-loading">
+              Looking up location...
+            </div>
+          </div>
+
+          <div id="map"></div>
+
+          <div class="share-section">
+            <p>
+              😱 Shocked? Share this tool to help others protect their privacy!
+            </p>
+            <button class="btn-share" id="btn-share-tool">
+              <span class="share-icon">📤</span> Share DataDiet
+            </button>
+          </div>
+        </div>
 
         <div class="metadata-section" id="metadata-display">
           <h3>📊 Metadata Found:</h3>
@@ -129,7 +147,6 @@
     </main>
 
     <article class="seo-content">
-      [Image of how EXIF metadata is embedded in image files]
       <h2>Why remove EXIF metadata?</h2>
       <p>
         Most modern smartphones embed hidden data (EXIF) into every photo. This
@@ -165,8 +182,9 @@
       <div class="faq-item">
         <span class="faq-question">Is it safe?</span>
         <p>
-          Yes. All processing happens in your browser. We never see your
-          location data.
+          Yes. The image processing happens in your browser. Note: If your photo
+          has GPS data, we send <em>only the coordinates</em> (not the photo) to
+          OpenStreetMap to show you the address address preview above.
         </p>
       </div>
     </article>
