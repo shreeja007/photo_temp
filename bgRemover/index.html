@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ClearDiet | Free Background Remover</title>
+    <meta
+      name="description"
+      content="Remove image backgrounds instantly in your browser. Free, private, and 100% client-side AI tool."
+    />
+
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="../public/icon/Icon_white.png" type="image/png" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <a href="/" class="back-link">← Back to Tools</a>
+        <img
+          src="../public/icon/IconText_white.png"
+          alt="PhotoDiet"
+          class="main-logo"
+        />
+        <div class="tool-name">ClearDiet (Background Remover)</div>
+        <p class="subtitle">
+          Auto-remove backgrounds or refine manually with the eraser
+        </p>
+      </header>
+
+      <main>
+        <div class="drop-zone" id="dropZone">
+          <div class="drop-zone-icon">📸</div>
+          <div
+            style="font-size: 1.3rem; font-weight: 600; margin-bottom: 0.5rem"
+          >
+            Click or Drop Your Image
+          </div>
+          <div style="color: var(--text-secondary); font-size: 0.9rem">
+            Supports JPG, PNG, WebP • Max 10MB
+          </div>
+          <input
+            type="file"
+            id="fileInput"
+            accept="image/*"
+            style="display: none"
+          />
+        </div>
+
+        <div class="editor-container" id="editorContainer">
+          <aside class="sidebar">
+            <div class="section">
+              <div class="section-title">🎯 Mode</div>
+              <button class="tool-btn active" id="eraseMode">
+                <span>🧹</span>
+                <span>Erase Mode</span>
+              </button>
+              <button class="tool-btn" id="restoreMode">
+                <span>🔄</span>
+                <span>Restore Mode</span>
+              </button>
+            </div>
+
+            <div class="section">
+              <div class="section-title">✨ AI Tools</div>
+              <button class="tool-btn" id="autoBtn">
+                <span>🤖</span>
+                <span>Auto Remove BG</span>
+              </button>
+            </div>
+
+            <div class="section">
+              <div class="section-title">🖌️ Brush Settings</div>
+
+              <div class="slider-control">
+                <div class="slider-label">
+                  <span>Size</span>
+                  <span class="slider-value" id="brushSizeVal">30px</span>
+                </div>
+                <input
+                  type="range"
+                  id="brushSize"
+                  min="5"
+                  max="150"
+                  value="30"
+                />
+              </div>
+
+              <div class="slider-control">
+                <div class="slider-label">
+                  <span>Hardness</span>
+                  <span class="slider-value" id="hardnessVal">100%</span>
+                </div>
+                <input
+                  type="range"
+                  id="hardness"
+                  min="0"
+                  max="100"
+                  value="100"
+                />
+              </div>
+
+              <div class="slider-control">
+                <div class="slider-label">
+                  <span>Opacity</span>
+                  <span class="slider-value" id="opacityVal">100%</span>
+                </div>
+                <input
+                  type="range"
+                  id="opacity"
+                  min="10"
+                  max="100"
+                  value="100"
+                />
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-title">📊 Image Info</div>
+              <div class="stats">
+                <div class="stat-card">
+                  <span class="stat-value" id="widthStat">-</span>
+                  <span class="stat-label">Width</span>
+                </div>
+                <div class="stat-card">
+                  <span class="stat-value" id="heightStat">-</span>
+                  <span class="stat-label">Height</span>
+                </div>
+                <div class="stat-card">
+                  <span class="stat-value" id="sizeStat">-</span>
+                  <span class="stat-label">Size</span>
+                </div>
+                <div class="stat-card">
+                  <span class="stat-value" id="undoCount">0</span>
+                  <span class="stat-label">History</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-title">⌨️ Shortcuts</div>
+              <div class="shortcuts">
+                <div class="shortcut-item">
+                  <span>Undo</span>
+                  <kbd class="key">Ctrl+Z</kbd>
+                </div>
+                <div class="shortcut-item">
+                  <span>Redo</span>
+                  <kbd class="key">Ctrl+Y</kbd>
+                </div>
+                <div class="shortcut-item">
+                  <span>Toggle Mode</span>
+                  <kbd class="key">E / R</kbd>
+                </div>
+                <div class="shortcut-item">
+                  <span>Brush Size</span>
+                  <kbd class="key">[ / ]</kbd>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <div class="main-panel">
+            <div class="toolbar">
+              <div class="tool-group">
+                <button class="btn btn-outline btn-small" id="zoomInBtn">
+                  🔍+ Zoom
+                </button>
+                <button class="btn btn-outline btn-small" id="zoomOutBtn">
+                  🔍- Zoom
+                </button>
+                <button class="btn btn-outline btn-small" id="fitBtn">
+                  📐 Fit
+                </button>
+              </div>
+
+              <div class="tool-group">
+                <button class="btn btn-outline" id="undoBtn" disabled>
+                  ↶ Undo
+                </button>
+                <button class="btn btn-outline" id="redoBtn" disabled>
+                  ↷ Redo
+                </button>
+                <button class="btn btn-outline" id="resetBtn">🔄 Reset</button>
+                <button class="btn btn-success" id="downloadBtn">
+                  ⬇ Download
+                </button>
+              </div>
+            </div>
+
+            <div class="canvas-wrapper" id="canvasWrapper">
+              <canvas id="mainCanvas"></canvas>
+              <div class="brush-preview" id="brushPreview"></div>
+
+              <div class="loading-overlay" id="loader">
+                <div class="spinner"></div>
+                <p id="statusText">Processing...</p>
+                <div class="progress-bar">
+                  <div class="progress-fill" id="progressFill"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer>
+        <p>&copy; 2026 PhotoDiet. 100% Client-Side & Secure.</p>
+        <p class="dev-credit">
+          Built by
+          <a
+            href="https://shreejamanandhar.com.np"
+            target="_blank"
+            rel="noopener"
+            >Shreeja Manandhar</a
+          >
+        </p>
+      </footer>
+    </div>
+
+    <div class="toast" id="toast">
+      <span id="toastIcon">✓</span>
+      <span id="toastMessage">Action completed</span>
+    </div>
+
+    <script type="module" src="script.js"></script>
+  </body>
+</html>
