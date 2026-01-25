@@ -1,0 +1,1052 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PhotoDiet | Pro Editor</title>
+    <style>
+      :root {
+        --primary: #6366f1;
+        --primary-dark: #4f46e5;
+        --bg: #0f172a;
+        --surface: #1e293b;
+        --surface-hover: #26334d;
+        --text: #f8fafc;
+        --text-dim: #94a3b8;
+        --danger: #ef4444;
+        --success: #10b981;
+        --warning: #f59e0b;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        padding: 1rem;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        padding: 1rem;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .badge {
+        display: inline-block;
+        background: rgba(99, 102, 241, 0.2);
+        color: var(--primary);
+        padding: 0.25rem 0.75rem;
+        border-radius: 99px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border: 1px solid rgba(99, 102, 241, 0.3);
+      }
+
+      .drop-zone {
+        background: var(--surface);
+        border: 2px dashed var(--text-dim);
+        border-radius: 1rem;
+        padding: 4rem 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .drop-zone:hover,
+      .drop-zone.dragover {
+        border-color: var(--primary);
+        background: var(--surface-hover);
+        transform: scale(1.01);
+      }
+      .drop-zone-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      .editor-container {
+        display: none;
+        gap: 1rem;
+      }
+
+      .sidebar {
+        background: var(--surface);
+        padding: 1.5rem;
+        border-radius: 1rem;
+        min-width: 280px;
+      }
+
+      .main-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .section {
+        margin-bottom: 1.5rem;
+      }
+
+      .section-title {
+        font-size: 0.9rem;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+
+      .tool-btn {
+        width: 100%;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text);
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+        transition: all 0.2s;
+        font-size: 0.95rem;
+      }
+
+      .tool-btn:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--primary);
+      }
+
+      .tool-btn.active {
+        background: rgba(99, 102, 241, 0.2);
+        border-color: var(--primary);
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        background: var(--surface);
+        border-radius: 1rem;
+      }
+
+      .tool-group {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .canvas-wrapper {
+        position: relative;
+        overflow: hidden;
+        border-radius: 0.75rem;
+        background: var(--surface);
+        background-image:
+          linear-gradient(45deg, #2d3748 25%, transparent 25%),
+          linear-gradient(-45deg, #2d3748 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, #2d3748 75%),
+          linear-gradient(-45deg, transparent 75%, #2d3748 75%);
+        background-size: 20px 20px;
+        background-position:
+          0 0,
+          0 10px,
+          10px -10px,
+          -10px 0px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 500px;
+        max-height: 70vh;
+        padding: 2rem;
+      }
+
+      canvas {
+        max-width: 100%;
+        max-height: 100%;
+        cursor: crosshair;
+        touch-action: none;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        border-radius: 0.5rem;
+      }
+
+      .brush-preview {
+        position: absolute;
+        border: 2px solid var(--primary);
+        border-radius: 50%;
+        pointer-events: none;
+        display: none;
+        opacity: 0.7;
+        box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+      }
+
+      .btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+      }
+      .btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+      }
+      .btn:active {
+        transform: scale(0.98);
+      }
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .btn-outline {
+        background: transparent;
+        border: 1px solid var(--text-dim);
+      }
+      .btn-outline:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--text);
+      }
+
+      .btn-small {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+      }
+
+      .btn-success {
+        background: var(--success);
+      }
+
+      .slider-control {
+        margin-bottom: 1rem;
+      }
+
+      .slider-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: var(--text-dim);
+      }
+
+      .slider-value {
+        color: var(--primary);
+        font-weight: 600;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+        outline: none;
+        -webkit-appearance: none;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        background: var(--primary);
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      }
+
+      input[type="range"]::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        background: var(--primary);
+        border-radius: 50%;
+        cursor: pointer;
+        border: none;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .stat-card {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        display: block;
+      }
+
+      .stat-label {
+        font-size: 0.75rem;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        margin-top: 0.25rem;
+      }
+
+      .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(15, 23, 42, 0.95);
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        backdrop-filter: blur(8px);
+        border-radius: 0.75rem;
+      }
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-top: 4px solid var(--primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 1rem;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .progress-bar {
+        width: 200px;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 1rem;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary), var(--success));
+        width: 0%;
+        transition: width 0.3s;
+      }
+
+      .shortcuts {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+      }
+
+      .shortcut-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .shortcut-item:last-child {
+        border-bottom: none;
+      }
+
+      .key {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.25rem;
+        font-family: monospace;
+        font-size: 0.8rem;
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: var(--surface);
+        color: var(--text);
+        padding: 1rem 1.5rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        gap: 0.75rem;
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(400px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      .toast.success {
+        border-left: 4px solid var(--success);
+      }
+
+      .toast.error {
+        border-left: 4px solid var(--danger);
+      }
+
+      @media (max-width: 1024px) {
+        .editor-container {
+          flex-direction: column;
+        }
+        .sidebar {
+          min-width: 100%;
+        }
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 1.5rem;
+        }
+        .canvas-wrapper {
+          min-height: 300px;
+          padding: 1rem;
+        }
+        .toolbar {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .tool-group {
+          justify-content: center;
+        }
+        .stats {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🎨 PhotoDiet Pro Editor</h1>
+        <div class="badge">🔒 100% Client-Side Processing</div>
+      </header>
+
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-zone-icon">📸</div>
+        <div style="font-size: 1.3rem; font-weight: 600; margin-bottom: 0.5rem">
+          Click or Drop Your Image
+        </div>
+        <div style="color: var(--text-dim); font-size: 0.9rem">
+          Supports JPG, PNG, WebP • Max 10MB
+        </div>
+        <input
+          type="file"
+          id="fileInput"
+          accept="image/*"
+          style="display: none"
+        />
+      </div>
+
+      <div class="editor-container" id="editorContainer">
+        <aside class="sidebar">
+          <div class="section">
+            <div class="section-title">🎯 Mode</div>
+            <button class="tool-btn active" id="eraseMode">
+              <span>🧹</span>
+              <span>Erase Mode</span>
+            </button>
+            <button class="tool-btn" id="restoreMode">
+              <span>🔄</span>
+              <span>Restore Mode</span>
+            </button>
+          </div>
+
+          <div class="section">
+            <div class="section-title">✨ AI Tools</div>
+            <button class="tool-btn" id="autoBtn">
+              <span>🤖</span>
+              <span>Auto Remove BG</span>
+            </button>
+          </div>
+
+          <div class="section">
+            <div class="section-title">🖌️ Brush Settings</div>
+
+            <div class="slider-control">
+              <div class="slider-label">
+                <span>Size</span>
+                <span class="slider-value" id="brushSizeVal">30px</span>
+              </div>
+              <input type="range" id="brushSize" min="5" max="150" value="30" />
+            </div>
+
+            <div class="slider-control">
+              <div class="slider-label">
+                <span>Hardness</span>
+                <span class="slider-value" id="hardnessVal">100%</span>
+              </div>
+              <input type="range" id="hardness" min="0" max="100" value="100" />
+            </div>
+
+            <div class="slider-control">
+              <div class="slider-label">
+                <span>Opacity</span>
+                <span class="slider-value" id="opacityVal">100%</span>
+              </div>
+              <input type="range" id="opacity" min="10" max="100" value="100" />
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">📊 Image Info</div>
+            <div class="stats">
+              <div class="stat-card">
+                <span class="stat-value" id="widthStat">-</span>
+                <span class="stat-label">Width</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value" id="heightStat">-</span>
+                <span class="stat-label">Height</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value" id="sizeStat">-</span>
+                <span class="stat-label">Size</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value" id="undoCount">0</span>
+                <span class="stat-label">History</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">⌨️ Shortcuts</div>
+            <div class="shortcuts">
+              <div class="shortcut-item">
+                <span>Undo</span>
+                <kbd class="key">Ctrl+Z</kbd>
+              </div>
+              <div class="shortcut-item">
+                <span>Redo</span>
+                <kbd class="key">Ctrl+Y</kbd>
+              </div>
+              <div class="shortcut-item">
+                <span>Toggle Mode</span>
+                <kbd class="key">E / R</kbd>
+              </div>
+              <div class="shortcut-item">
+                <span>Brush Size</span>
+                <kbd class="key">[ / ]</kbd>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <div class="main-panel">
+          <div class="toolbar">
+            <div class="tool-group">
+              <button class="btn btn-outline btn-small" id="zoomInBtn">
+                🔍+ Zoom
+              </button>
+              <button class="btn btn-outline btn-small" id="zoomOutBtn">
+                🔍- Zoom
+              </button>
+              <button class="btn btn-outline btn-small" id="fitBtn">
+                📐 Fit
+              </button>
+            </div>
+
+            <div class="tool-group">
+              <button class="btn btn-outline" id="undoBtn" disabled>
+                ↶ Undo
+              </button>
+              <button class="btn btn-outline" id="redoBtn" disabled>
+                ↷ Redo
+              </button>
+              <button class="btn btn-outline" id="resetBtn">🔄 Reset</button>
+              <button class="btn btn-success" id="downloadBtn">
+                ⬇ Download
+              </button>
+            </div>
+          </div>
+
+          <div class="canvas-wrapper" id="canvasWrapper">
+            <canvas id="mainCanvas"></canvas>
+            <div class="brush-preview" id="brushPreview"></div>
+
+            <div class="loading-overlay" id="loader">
+              <div class="spinner"></div>
+              <p id="statusText">Processing...</p>
+              <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast">
+      <span id="toastIcon">✓</span>
+      <span id="toastMessage">Action completed</span>
+    </div>
+
+    <script type="module">
+      import removeBackground from "https://esm.sh/@imgly/background-removal@1.4.5";
+
+      const dropZone = document.getElementById("dropZone");
+      const fileInput = document.getElementById("fileInput");
+      const editorContainer = document.getElementById("editorContainer");
+      const canvas = document.getElementById("mainCanvas");
+      const ctx = canvas.getContext("2d");
+      const loader = document.getElementById("loader");
+      const statusText = document.getElementById("statusText");
+      const progressFill = document.getElementById("progressFill");
+      const brushPreview = document.getElementById("brushPreview");
+      const canvasWrapper = document.getElementById("canvasWrapper");
+
+      const autoBtn = document.getElementById("autoBtn");
+      const eraseMode = document.getElementById("eraseMode");
+      const restoreMode = document.getElementById("restoreMode");
+      const brushSizeInput = document.getElementById("brushSize");
+      const brushSizeVal = document.getElementById("brushSizeVal");
+      const hardnessInput = document.getElementById("hardness");
+      const hardnessVal = document.getElementById("hardnessVal");
+      const opacityInput = document.getElementById("opacity");
+      const opacityVal = document.getElementById("opacityVal");
+      const resetBtn = document.getElementById("resetBtn");
+      const undoBtn = document.getElementById("undoBtn");
+      const redoBtn = document.getElementById("redoBtn");
+      const downloadBtn = document.getElementById("downloadBtn");
+      const zoomInBtn = document.getElementById("zoomInBtn");
+      const zoomOutBtn = document.getElementById("zoomOutBtn");
+      const fitBtn = document.getElementById("fitBtn");
+
+      const widthStat = document.getElementById("widthStat");
+      const heightStat = document.getElementById("heightStat");
+      const sizeStat = document.getElementById("sizeStat");
+      const undoCount = document.getElementById("undoCount");
+
+      const toast = document.getElementById("toast");
+      const toastIcon = document.getElementById("toastIcon");
+      const toastMessage = document.getElementById("toastMessage");
+
+      let originalImage = null;
+      let history = [];
+      let historyIndex = -1;
+      let isDrawing = false;
+      let currentMode = "erase";
+      let currentScale = 1;
+
+      function showToast(message, type = "success") {
+        toastIcon.textContent = type === "success" ? "✓" : "⚠";
+        toastMessage.textContent = message;
+        toast.className = `toast ${type}`;
+        toast.style.display = "flex";
+        setTimeout(() => {
+          toast.style.display = "none";
+        }, 3000);
+      }
+
+      function updateStats() {
+        if (!originalImage) return;
+        widthStat.textContent = originalImage.width + "px";
+        heightStat.textContent = originalImage.height + "px";
+
+        canvas.toBlob((blob) => {
+          const kb = (blob.size / 1024).toFixed(1);
+          sizeStat.textContent =
+            kb < 1024 ? kb + "KB" : (kb / 1024).toFixed(1) + "MB";
+        });
+
+        undoCount.textContent = historyIndex + 1;
+        undoBtn.disabled = historyIndex <= 0;
+        redoBtn.disabled = historyIndex >= history.length - 1;
+      }
+
+      dropZone.addEventListener("click", () => fileInput.click());
+      fileInput.addEventListener("change", (e) => {
+        if (e.target.files.length) loadFile(e.target.files[0]);
+      });
+
+      dropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZone.classList.add("dragover");
+      });
+
+      dropZone.addEventListener("dragleave", () => {
+        dropZone.classList.remove("dragover");
+      });
+
+      dropZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("dragover");
+        if (e.dataTransfer.files.length) loadFile(e.dataTransfer.files[0]);
+      });
+
+      function loadFile(file) {
+        if (!file.type.match("image.*")) {
+          showToast("Please upload an image file", "error");
+          return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+          showToast("File too large. Max 10MB", "error");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            originalImage = img;
+            initCanvas(img);
+            dropZone.style.display = "none";
+            editorContainer.style.display = "flex";
+            updateStats();
+            showToast("Image loaded successfully");
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function initCanvas(img) {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        saveState();
+        fitToView();
+      }
+
+      function saveState() {
+        history = history.slice(0, historyIndex + 1);
+        if (history.length > 20) history.shift();
+        else historyIndex++;
+        history.push(canvas.toDataURL());
+        updateStats();
+      }
+
+      function loadState(index) {
+        if (index < 0 || index >= history.length) return;
+        const img = new Image();
+        img.onload = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0);
+          historyIndex = index;
+          updateStats();
+        };
+        img.src = history[index];
+      }
+
+      eraseMode.addEventListener("click", () => {
+        currentMode = "erase";
+        eraseMode.classList.add("active");
+        restoreMode.classList.remove("active");
+      });
+
+      restoreMode.addEventListener("click", () => {
+        currentMode = "restore";
+        restoreMode.classList.add("active");
+        eraseMode.classList.remove("active");
+      });
+
+      autoBtn.addEventListener("click", async () => {
+        if (!originalImage) return;
+
+        loader.style.display = "flex";
+        statusText.innerText = "Loading AI model...";
+        progressFill.style.width = "0%";
+
+        try {
+          const blob = await removeBackground(originalImage.src, {
+            progress: (key, current, total) => {
+              const percent = Math.round((current / total) * 100);
+              progressFill.style.width = percent + "%";
+              statusText.innerText = `AI Processing... ${percent}%`;
+            },
+          });
+
+          const processedUrl = URL.createObjectURL(blob);
+          const processedImg = new Image();
+          processedImg.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(processedImg, 0, 0);
+            saveState();
+            loader.style.display = "none";
+            URL.revokeObjectURL(processedUrl);
+            showToast("Background removed successfully");
+            updateStats();
+          };
+          processedImg.src = processedUrl;
+        } catch (err) {
+          console.error(err);
+          showToast("AI processing failed: " + err.message, "error");
+          loader.style.display = "none";
+        }
+      });
+
+      brushSizeInput.addEventListener("input", (e) => {
+        brushSizeVal.textContent = e.target.value + "px";
+      });
+
+      hardnessInput.addEventListener("input", (e) => {
+        hardnessVal.textContent = e.target.value + "%";
+      });
+
+      opacityInput.addEventListener("input", (e) => {
+        opacityVal.textContent = e.target.value + "%";
+      });
+
+      function getMousePos(evt) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        return {
+          x: (evt.clientX - rect.left) * scaleX,
+          y: (evt.clientY - rect.top) * scaleY,
+        };
+      }
+
+      function draw(e) {
+        if (!isDrawing) return;
+        const pos = getMousePos(e);
+        const size = parseInt(brushSizeInput.value);
+        const hardness = parseInt(hardnessInput.value) / 100;
+        const opacity = parseInt(opacityInput.value) / 100;
+
+        if (currentMode === "erase") {
+          ctx.globalCompositeOperation = "destination-out";
+          ctx.globalAlpha = opacity;
+
+          if (hardness < 1) {
+            const gradient = ctx.createRadialGradient(
+              pos.x,
+              pos.y,
+              0,
+              pos.x,
+              pos.y,
+              size / 2,
+            );
+            gradient.addColorStop(0, `rgba(0,0,0,${opacity})`);
+            gradient.addColorStop(hardness, `rgba(0,0,0,${opacity * 0.5})`);
+            gradient.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, size / 2, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, size / 2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          ctx.globalCompositeOperation = "source-over";
+          ctx.globalAlpha = 1;
+        } else {
+          ctx.globalAlpha = opacity;
+          ctx.drawImage(
+            originalImage,
+            pos.x - size / 2,
+            pos.y - size / 2,
+            size,
+            size,
+            pos.x - size / 2,
+            pos.y - size / 2,
+            size,
+            size,
+          );
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      canvas.addEventListener("mousedown", (e) => {
+        isDrawing = true;
+        draw(e);
+      });
+
+      canvas.addEventListener("mousemove", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const size = parseInt(brushSizeInput.value);
+        brushPreview.style.width = size / (canvas.width / rect.width) + "px";
+        brushPreview.style.height = size / (canvas.width / rect.width) + "px";
+        brushPreview.style.left =
+          e.clientX - brushPreview.offsetWidth / 2 + "px";
+        brushPreview.style.top =
+          e.clientY - brushPreview.offsetHeight / 2 + "px";
+        brushPreview.style.display = "block";
+        draw(e);
+      });
+
+      canvas.addEventListener("mouseup", () => {
+        if (isDrawing) {
+          isDrawing = false;
+          saveState();
+        }
+      });
+
+      canvas.addEventListener("mouseout", () => {
+        isDrawing = false;
+        brushPreview.style.display = "none";
+      });
+
+      canvas.addEventListener("mouseenter", () => {
+        brushPreview.style.display = "block";
+      });
+
+      canvas.addEventListener(
+        "touchstart",
+        (e) => {
+          e.preventDefault();
+          isDrawing = true;
+          const touch = e.touches[0];
+          draw(touch);
+        },
+        { passive: false },
+      );
+
+      canvas.addEventListener(
+        "touchmove",
+        (e) => {
+          e.preventDefault();
+          if (isDrawing) {
+            const touch = e.touches[0];
+            draw(touch);
+          }
+        },
+        { passive: false },
+      );
+
+      canvas.addEventListener("touchend", () => {
+        if (isDrawing) {
+          isDrawing = false;
+          saveState();
+        }
+      });
+
+      function fitToView() {
+        const wrapper = canvasWrapper;
+        const wrapperWidth = wrapper.clientWidth - 80;
+        const wrapperHeight = wrapper.clientHeight - 80;
+        const scaleX = wrapperWidth / canvas.width;
+        const scaleY = wrapperHeight / canvas.height;
+        currentScale = Math.min(scaleX, scaleY, 1);
+        canvas.style.transform = `scale(${currentScale})`;
+      }
+
+      zoomInBtn.addEventListener("click", () => {
+        currentScale = Math.min(currentScale * 1.2, 3);
+        canvas.style.transform = `scale(${currentScale})`;
+      });
+
+      zoomOutBtn.addEventListener("click", () => {
+        currentScale = Math.max(currentScale / 1.2, 0.1);
+        canvas.style.transform = `scale(${currentScale})`;
+      });
+
+      fitBtn.addEventListener("click", fitToView);
+
+      undoBtn.addEventListener("click", () => {
+        if (historyIndex > 0) {
+          loadState(historyIndex - 1);
+          showToast("Undo");
+        }
+      });
+
+      redoBtn.addEventListener("click", () => {
+        if (historyIndex < history.length - 1) {
+          loadState(historyIndex + 1);
+          showToast("Redo");
+        }
+      });
+
+      resetBtn.addEventListener("click", () => {
+        if (confirm("Reset to original image? This will clear all edits.")) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(originalImage, 0, 0);
+          saveState();
+          showToast("Image reset");
+        }
+      });
+
+      downloadBtn.addEventListener("click", () => {
+        const link = document.createElement("a");
+        link.download = `photodiet-${Date.now()}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+        showToast("Image downloaded");
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.ctrlKey && e.key === "z") {
+          e.preventDefault();
+          undoBtn.click();
+        }
+        if (e.ctrlKey && e.key === "y") {
+          e.preventDefault();
+          redoBtn.click();
+        }
+        if (e.key === "e" || e.key === "E") {
+          eraseMode.click();
+        }
+        if (e.key === "r" || e.key === "R") {
+          restoreMode.click();
+        }
+        if (e.key === "[") {
+          brushSizeInput.value = Math.max(
+            5,
+            parseInt(brushSizeInput.value) - 5,
+          );
+          brushSizeVal.textContent = brushSizeInput.value + "px";
+        }
+        if (e.key === "]") {
+          brushSizeInput.value = Math.min(
+            150,
+            parseInt(brushSizeInput.value) + 5,
+          );
+          brushSizeVal.textContent = brushSizeInput.value + "px";
+        }
+      });
+
+      window.addEventListener("resize", () => {
+        if (originalImage) {
+          fitToView();
+        }
+      });
+    </script>
+  </body>
+</html>
