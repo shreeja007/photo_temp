@@ -79,34 +79,98 @@ function getOrientation(file) {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      const view = new DataView(e.target.result);
-      if (view.getUint16(0, false) !== 0xffd8) {
-        return resolve(1); // Not a JPEG
-      }
-      const length = view.byteLength;
-      let offset = 2;
-      while (offset < length) {
-        if (view.getUint16(offset + 2, false) <= 8) return resolve(1);
-        const marker = view.getUint16(offset, false);
-        offset += 2;
-        if (marker === 0xffe1) {
-          const little = view.getUint16(offset + 8, false) === 0x4949;
-          offset += view.getUint16(offset, false);
-          const tags = view.getUint16(offset, little);
-          offset += 2;
-          for (let i = 0; i < tags; i++) {
-            if (view.getUint16(offset + i * 12, little) === 0x0112) {
-              return resolve(view.getUint16(offset + i * 12 + 8, little));
-            }
-          }
-        } else if ((marker & 0xff00) !== 0xff00) {
-          break;
-        } else {
-          offset += view.getUint16(offset, false);
+      try {
+        const view = new DataView(e.target.result);
+
+        // Check if it's a JPEG (starts with 0xFFD8)
+        if (view.byteLength < 2 || view.getUint16(0, false) !== 0xffd8) {
+          return resolve(1); // Not a JPEG, return default orientation
         }
+
+        const length = view.byteLength;
+        let offset = 2;
+
+        while (offset < length - 2) {
+          // Safety check before reading
+          if (offset + 4 > length) break;
+
+          const marker = view.getUint16(offset, false);
+          offset += 2;
+
+          // Check if we have enough bytes to read segment length
+          if (offset + 2 > length) break;
+
+          if (marker === 0xffe1) {
+            // EXIF marker found
+            const segmentLength = view.getUint16(offset, false);
+
+            // Check if we can read the full EXIF segment
+            if (offset + segmentLength > length) break;
+
+            // Check EXIF header
+            if (offset + 10 > length) break;
+
+            // Check for EXIF identifier
+            const exifID = view.getUint32(offset + 2, false);
+            if (exifID !== 0x45786966) {
+              // "Exif"
+              offset += segmentLength;
+              continue;
+            }
+
+            // Read byte order
+            if (offset + 10 > length) break;
+            const tiffOffset = offset + 8;
+            const byteOrder = view.getUint16(tiffOffset, false);
+            const little = byteOrder === 0x4949; // "II" = Intel (little endian)
+
+            // Get IFD offset
+            if (tiffOffset + 4 > length) break;
+            const ifdOffset =
+              tiffOffset + view.getUint32(tiffOffset + 4, little);
+
+            // Read number of entries
+            if (ifdOffset + 2 > length) break;
+            const tags = view.getUint16(ifdOffset, little);
+
+            // Read all IFD entries
+            for (let i = 0; i < tags; i++) {
+              const entryOffset = ifdOffset + 2 + i * 12;
+
+              // Safety check
+              if (entryOffset + 12 > length) break;
+
+              const tag = view.getUint16(entryOffset, little);
+
+              // Check if this is the Orientation tag (0x0112)
+              if (tag === 0x0112) {
+                const orientation = view.getUint16(entryOffset + 8, little);
+                return resolve(orientation);
+              }
+            }
+
+            // Orientation not found in this segment
+            break;
+          } else if ((marker & 0xff00) !== 0xff00) {
+            // Invalid marker, stop
+            break;
+          } else {
+            // Skip to next marker
+            const segmentLength = view.getUint16(offset, false);
+            offset += segmentLength;
+          }
+        }
+
+        // No orientation found, return default
+        return resolve(1);
+      } catch (error) {
+        // If any error occurs, just use default orientation
+        console.warn("EXIF reading error:", error);
+        return resolve(1);
       }
-      return resolve(1);
     };
+
+    reader.onerror = () => resolve(1);
     reader.readAsArrayBuffer(file.slice(0, 64 * 1024));
   });
 }

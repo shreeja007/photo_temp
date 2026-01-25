@@ -431,6 +431,53 @@ canvas {
   border: 1px solid var(--border-color);
 }
 
+/* SEO & FAQ CONTENT */
+.seo-content {
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 4rem;
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: #fff;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+}
+.seo-content h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+.seo-content h3 {
+  font-size: 1.15rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+.seo-content p {
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.seo-content ul {
+  padding-left: 1.25rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+.seo-content li {
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+.faq-item {
+  margin-bottom: 1.5rem;
+}
+.faq-question {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
 /* FOOTER */
 footer {
   margin-top: auto;
